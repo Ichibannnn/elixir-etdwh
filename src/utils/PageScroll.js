@@ -1,11 +1,11 @@
 import { Box } from '@chakra-ui/react';
 import React from 'react';
 
-const PageScroll = ({children}) => {
+const PageScroll = ({children, minHeight, maxHeight}) => {
     return (
         <Box w="full" overflowY="auto" overflowX="auto"
-            minHeight="300px"
-            maxHeight="500px"
+            minHeight={minHeight ? minHeight : "300px"}
+            maxHeight={maxHeight ? maxHeight : "500px"}
             sx={{
                 "&::-webkit-scrollbar": {
                     height: "5px",

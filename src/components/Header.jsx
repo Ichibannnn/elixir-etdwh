@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { decodeUser } from "../services/decode-user";
 
-const Header = (props) => {
+const Header = ({ setSidebarHandler }) => {
   const user = decodeUser();
   var navigate = useNavigate();
 
@@ -28,33 +28,35 @@ const Header = (props) => {
     });
   };
 
-  console.log(user);
-
   return (
     <Flex
       h="40px"
       bgColor="primary"
       alignItems="center"
-      justifyContent="center"
+      justifyContent="space-between"
+      p={2}
     >
-      <GiHamburgerMenu color="#D1D2D5" w="40%" alignItems="center" />
+      <HStack>
+        <GiHamburgerMenu
+          color="#D1D2D5"
+          w="40%"
+          alignItems="center"
+          onClick={() => setSidebarHandler((x) => !x)}
+        />
+      </HStack>
 
-      <Flex height="54px" w="84%" alignItems="center"></Flex>
-
-      <Text className="font" color="#fff">
-        Welcome, {`${user && user?.fullName}`}!
-      </Text>
-      <Image
-        boxSize="37px"
-        objectFit="cover"
-        src="/images/userlogout.png"
-        alt="lot"
-        onClick={logoutHandler}
-      />
-
-      {/* <HStack>
-        <Icon as={HiUserCircle} w={7} h={7} color="#D1D2D5" />
-      </HStack> */}
+      <HStack>
+        <Text className="font" color="#fff">
+          Welcome, {`${user && user?.fullName}`}!
+        </Text>
+        <Image
+          boxSize="37px"
+          objectFit="cover"
+          src="/images/userlogout.png"
+          alt="lot"
+          onClick={logoutHandler}
+        />
+      </HStack>
     </Flex>
   );
 };

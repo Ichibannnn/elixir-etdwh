@@ -8,37 +8,28 @@ import MainContainer from "./components/MainContainer";
 import UomManagement from "./pages/setup/UomManagement";
 import LotManagement from "./pages/setup/LotManagement";
 import UserAccount from "./pages/UserManagement/UserAccount";
+import Department from "./pages/UserManagement/Department";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import ErrorPage from "./pages/ErrorPage";
-
-const theme = extendTheme({
-  colors: {
-    primary: "#1B1C1D",
-    secondary: "#333333",
-    background: "#F6F8FA",
-    form: "#FFFFFF",
-    fontColor: "#3F444E",
-  },
-});
+import UserRole from "./pages/UserManagement/UserRole";
 
 const App = () => {
   return (
-    <ChakraProvider theme={theme}>
-      <Routes>
-        <Route path="*" element={<ErrorPage />} />
-        <Route path="/login" element={<Login />} />
+    <Routes>
+      <Route path="/login" element={<Login />} />
 
-        <Route element={<ProtectedRoutes />}>
-          <Route path="/" element={<MainContainer />}>
-            <Route path="/setup/uom-management" element={<UomManagement />} />
-            <Route path="/setup/lot-management" element={<LotManagement />} />
+      <Route element={<ProtectedRoutes />}>
+        <Route path="/" element={<MainContainer />}>
+          <Route path="/setup/uom-management" element={<UomManagement />} />
+          <Route path="/setup/lot-management" element={<LotManagement />} />
 
-            <Route path="/user/user-account" element={<UserAccount />} />
-          </Route>
+          <Route path="/user/user-account" element={<UserAccount />} />
+          <Route path="/user/user-role" element={<UserRole />} />
+          <Route path="/user/department" element={<Department />} />
+          <Route path="*" element={<ErrorPage />} />
         </Route>
-      </Routes>
-    </ChakraProvider>
-    
+      </Route>
+    </Routes>
   );
 };
 

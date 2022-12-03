@@ -35,7 +35,12 @@ export const sidebarData = [
             {
                 id: 11,
                 subname: 'User Role',
-                path: '/maincontent/user/user-role',
+                path: '/user/user-role',
+            },
+            {
+                id: 12,
+                subname: 'Department',
+                path: '/user/department',
             }
         ]
     },

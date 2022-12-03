@@ -38,6 +38,7 @@ import {
   PopoverAnchor,
   VStack,
   Portal,
+  TableContainer,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useEffect } from "react";
@@ -69,8 +70,8 @@ import {
   PaginationPageGroup,
 } from "@ajna/pagination";
 
-const UserAccount = () => {
-  const [users, setUsers] = useState([]);
+const Department = () => {
+  const [department, setDeparment] = useState([]);
   const [editData, setEditData] = useState([]);
   const [status, setStatus] = useState(true);
   const [search, setSearch] = useState("");
@@ -83,7 +84,7 @@ const UserAccount = () => {
 
   const fetchUserApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
-      `User/GetAllUserWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`
+      `User/GetAllDepartmentWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`
     );
 
     return response.data;
@@ -112,7 +113,7 @@ const UserAccount = () => {
   const getUserHandler = () => {
     fetchUserApi(currentPage, pageSize, status, search).then((res) => {
       setIsLoading(false);
-      setUsers(res);
+      setDeparment(res);
       setPageTotal(res.totalCount);
     });
   };
@@ -121,7 +122,7 @@ const UserAccount = () => {
     getUserHandler();
 
     return () => {
-      setUsers([]);
+      setDeparment([]);
     };
   }, [currentPage, pageSize, status, search]);
 
@@ -138,12 +139,12 @@ const UserAccount = () => {
     setStatus(data);
   };
 
-  const changeStatusHandler = (id, isActive) => {
+  const changeStatusHandler = (id, status) => {
     let routeLabel;
-    if (isActive) {
-      routeLabel = "InactiveUser";
+    if (status) {
+      routeLabel = "InActiveDepartment";
     } else {
-      routeLabel = "ActivateUser";
+      routeLabel = "ActivateDepartment";
     }
 
     request
@@ -155,7 +156,7 @@ const UserAccount = () => {
       .catch((err) => {
         console.log(err);
       });
-    // console.log(routeLabel);
+    console.log(routeLabel);
   };
 
   const searchHandler = (inputValue) => {
@@ -167,11 +168,8 @@ const UserAccount = () => {
   const addUserHandler = () => {
     setEditData({
       id: "",
-      fullName: "",
-      userName: "",
-      password: "",
-      userRoleId: "",
-      departmentId: "",
+      departmentCode: "",
+      departmentName: "",
       addedBy: currentUser.userName,
       modifiedBy: "",
     });
@@ -193,7 +191,7 @@ const UserAccount = () => {
   return (
     <Flex
       color="fontColor"
-      h="auto"
+      h="full"
       w="full"
       flexDirection="column"
       p={2}
@@ -208,7 +206,7 @@ const UserAccount = () => {
         fontSize="15px"
         fontWeight="bold"
       >
-        <Text>User Account</Text>
+        <Text>Department</Text>
       </Flex>
 
       <Flex p={2} w="full">
@@ -224,7 +222,7 @@ const UserAccount = () => {
                   borderRadius="none"
                   size="xs"
                   type="text"
-                  placeholder="Search: Username"
+                  placeholder="Search: Department Name"
                   borderColor="gray.400"
                   _hover={{ borderColor: "gray.400" }}
                   onChange={(e) => searchHandler(e.target.value)}
@@ -245,7 +243,7 @@ const UserAccount = () => {
           </Flex>
 
           <Flex w="full" flexDirection="column" gap={2}>
-            <PageScroll maxHeight="350px">
+            <PageScroll>
               {isLoading ? (
                 <Stack width="full">
                   <Skeleton height="20px" />
@@ -270,16 +268,10 @@ const UserAccount = () => {
                         ID
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Fullname
+                        Department Code
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Username
-                      </Th>
-                      <Th color="#D6D6D6" fontSize="10px">
-                        Department
-                      </Th>
-                      <Th color="#D6D6D6" fontSize="10px">
-                        User Role
+                        Department Name
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Added By
@@ -293,22 +285,20 @@ const UserAccount = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {users.user?.map((user) => (
-                      <Tr key={user.i}>
-                        <Td fontSize="11px">{user.id}</Td>
-                        <Td fontSize="11px">{user.fullName}</Td>
-                        <Td fontSize="11px">{user.userName}</Td>
-                        <Td fontSize="11px">{user.department}</Td>
-                        <Td fontSize="11px">{user.userRole}</Td>
-                        <Td fontSize="11px">{user.addedBy}</Td>
-                        <Td fontSize="11px">{user.dateAdded}</Td>
+                    {department.department?.map((dep) => (
+                      <Tr key={dep.i}>
+                        <Td fontSize="11px">{dep.id}</Td>
+                        <Td fontSize="11px">{dep.departmentCode}</Td>
+                        <Td fontSize="11px">{dep.departmentName}</Td>
+                        <Td fontSize="11px">{dep.addedBy}</Td>
+                        <Td fontSize="11px">{dep.dateAdded}</Td>
 
                         <Td>
                           <Flex>
                             <HStack>
                               <Button
                                 bg="none"
-                                onClick={() => editUserHandler(user)}
+                                onClick={() => editUserHandler(dep)}
                               >
                                 <AiTwotoneEdit />
                               </Button>
@@ -326,19 +316,18 @@ const UserAccount = () => {
                                     <PopoverHeader>Confirmation!</PopoverHeader>
                                     <PopoverBody>
                                       <VStack>
-                                        {/* {user.isActive === true ? (
+                                        {/* {dep.isActive === true ? (
                                           <Text>
                                             Are you sure you want to set this
-                                            user inactive?
+                                            department inactive?
                                           </Text>
                                         ) : (
                                           <Text>
                                             Are you sure you want to set this
-                                            user active?
+                                            department active?
                                           </Text>
                                         )} */}
-
-                                        {user.isActive === true ? (
+                                        {dep.isActive === true ? (
                                           <Text>
                                             Are you sure you want to set this
                                             department inactive?
@@ -354,8 +343,8 @@ const UserAccount = () => {
                                           size="sm"
                                           onClick={() =>
                                             changeStatusHandler(
-                                              user.id,
-                                              user.isActive
+                                              dep.id,
+                                              dep.isActive
                                             )
                                           }
                                         >
@@ -376,7 +365,7 @@ const UserAccount = () => {
               )}
             </PageScroll>
 
-            <Flex justifyContent="space-between">
+            <Flex justifyContent="space-between" mt={3}>
               <Button
                 size="xs"
                 colorScheme="blue"
@@ -386,7 +375,7 @@ const UserAccount = () => {
                 borderRadius="none"
                 onClick={addUserHandler}
               >
-                New User
+                New Department
               </Button>
 
               {/* PROPS */}
@@ -465,22 +454,13 @@ const UserAccount = () => {
   );
 };
 
-export default UserAccount;
+export default Department;
 
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    fullName: yup.string().required("Fullname is required"),
-    userName: yup
-      .string()
-      .required("Username is required")
-      .min(5, "Username must be at least 5 characters"),
-    password: yup
-      .string()
-      .required("Password is required")
-      .min(5, "Password must be at least 5 characters"),
-    userRoleId: yup.string().required("User Role is required"),
-    departmentId: yup.string().required("Department is required"),
+    departmentCode: yup.string().required("Department Code is required"),
+    departmentName: yup.string().required("Department Name is required"),
   }),
 });
 
@@ -491,7 +471,6 @@ const DrawerComponent = (props) => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [roles, setRoles] = useState([]);
-  const [department, setDepartment] = useState([]);
   const toast = useToast();
 
   const {
@@ -507,51 +486,54 @@ const DrawerComponent = (props) => {
     defaultValues: {
       formData: {
         id: "",
-        fullName: "",
-        userName: "",
+        departmentCode: "",
+        departmentName: "",
         password: "",
-        userRoleId: "",
-        departmentId: "",
         addedBy: currentUser?.userName,
         modifiedBy: "",
       },
     },
   });
 
-  const fetchRoles = async () => {
-    try {
-      const res = await request.get("Role/GetAllActiveRoles");
-      setRoles(res.data);
-    } catch (error) {}
-  };
+  // const fetchRoles = async () => {
+  //   try {
+  //     const res = await request.get("Role/GetAllActiveRoles");
+  //     setRoles(res.data);
+  //   } catch (error) {}
+  // };
 
-  useEffect(() => {
-    try {
-      fetchRoles();
-    } catch (error) {}
-  }, []);
+  // useEffect(() => {
+  //   try {
+  //     fetchRoles();
+  //   } catch (error) {}
+  // }, []);
 
-  const fetchDepartment = async () => {
-    try {
-      const res = await request.get("User/GetAllActiveDepartment");
-      setDepartment(res.data);
-    } catch (error) {}
-  };
+  // const fetchDepartment = async () => {
+  //   try {
+  //     const res = await request.get("User/GetAllActiveDepartment");
+  //     setDepartment(res.data);
+  //   } catch (error) {}
+  // };
 
-  useEffect(() => {
-    try {
-      fetchDepartment();
-    } catch (error) {}
-  }, []);
+  // useEffect(() => {
+  //   try {
+  //     fetchDepartment();
+  //   } catch (error) {}
+  // }, []);
 
   const submitHandler = async (data) => {
     try {
       if (data.formData.id === "") {
         delete data.formData["id"];
         const res = await request
-          .post("User/AddNewUser", data.formData)
+          .post("User/AddNewDepartment", data.formData)
           .then((res) => {
-            ToastComponent("Success", "New user created!", "success", toast);
+            ToastComponent(
+              "Success",
+              "New department created!",
+              "success",
+              toast
+            );
             getUserHandler();
             onClose();
           })
@@ -561,9 +543,9 @@ const DrawerComponent = (props) => {
           });
       } else {
         const res = await request
-          .put(`User/UpdateUserInfo`, data.formData)
+          .put(`User/UpdateDepartment`, data.formData)
           .then((res) => {
-            ToastComponent("Success", "User Updated", "success", toast);
+            ToastComponent("Success", "Department Updated", "success", toast);
             getUserHandler();
             onClose(onClose);
           })
@@ -579,7 +561,7 @@ const DrawerComponent = (props) => {
     } catch (err) {}
   };
 
-  // console.log(editData);
+  console.log(editData);
 
   useEffect(() => {
     if (editData.id) {
@@ -587,11 +569,8 @@ const DrawerComponent = (props) => {
         "formData",
         {
           id: editData.id,
-          fullName: editData?.fullName,
-          userName: editData?.userName,
-          password: editData?.password,
-          userRoleId: editData?.userRoleId,
-          departmentId: editData?.departmentId,
+          departmentCode: editData?.departmentCode,
+          departmentName: editData?.departmentName,
           modifiedBy: currentUser.userName,
         },
         { shouldValidate: true }
@@ -611,15 +590,18 @@ const DrawerComponent = (props) => {
         <DrawerOverlay />
         <form onSubmit={handleSubmit(submitHandler)}>
           <DrawerContent>
-            <DrawerHeader borderBottomWidth="1px">User Form</DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px">Department Form</DrawerHeader>
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">
                 <Box>
-                  <FormLabel>Full Name:</FormLabel>
+                  <FormLabel>Department Code:</FormLabel>
                   <Input
-                    {...register("formData.fullName")}
-                    placeholder="Please enter Fullname"
+                    {...register("formData.departmentCode")}
+                    placeholder="Please enter Department Code"
+                    bgColor={disableEdit ? "gray" : "none"}
+                    disabled={disableEdit}
+                    readOnly={disableEdit}
                     // onChange={(e) =>
                     //   setEditData((prevValue) => ({
                     //     ...prevValue,
@@ -628,92 +610,24 @@ const DrawerComponent = (props) => {
                     // }
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.fullName?.message}
+                    {errors.formData?.departmentCode?.message}
                   </Text>
                 </Box>
 
                 <Box>
-                  <FormLabel>Username:</FormLabel>
+                  <FormLabel>Department Name:</FormLabel>
                   <Input
-                    {...register("formData.userName")}
-                    placeholder="Please enter Fullname"
-                    disabled={disableEdit}
+                    {...register("formData.departmentName")}
+                    placeholder="Please enter Department Name"
+                    // onChange={(e) =>
+                    //   setEditData((prevValue) => ({
+                    //     ...prevValue,
+                    //     userName: e.target.value,
+                    //   }))
+                    // }
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.userName?.message}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <FormLabel>Password:</FormLabel>
-                  <InputGroup>
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      {...register("formData.password")}
-                      placeholder="Please enter Password"
-                      // onChange={(e) =>
-                      //   setEditData((prevValue) => ({
-                      //     ...prevValue,
-                      //     password: e.target.value,
-                      //   }))
-                      // }
-                    />
-                    <InputRightElement>
-                      <Button
-                        bg="none"
-                        onClick={() => setShowPassword(!showPassword)}
-                        size="sm"
-                      >
-                        {showPassword ? <VscEye /> : <VscEyeClosed />}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
-                  <Text color="red" fontSize="xs">
-                    {errors.formData?.password?.message}
-                  </Text>
-                </Box>
-
-                <Flex mt={3}></Flex>
-
-                <Box>
-                  <FormLabel>Role:</FormLabel>
-                  {roles.length > 0 ? (
-                    <Select
-                      {...register("formData.userRoleId")}
-                      placeholder="Select Role"
-                    >
-                      {roles.map((rol) => (
-                        <option key={rol.id} value={rol.id}>
-                          {rol.roleName}
-                        </option>
-                      ))}
-                    </Select>
-                  ) : (
-                    "loading"
-                  )}
-                  <Text color="red" fontSize="xs">
-                    {errors.formData?.userRoleId?.message}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <FormLabel>Department:</FormLabel>
-                  {department.length > 0 ? (
-                    <Select
-                      {...register("formData.departmentId")}
-                      placeholder="Select Department"
-                    >
-                      {department.map((dep) => (
-                        <option key={dep.id} value={dep.id}>
-                          {dep.departmentName}
-                        </option>
-                      ))}
-                    </Select>
-                  ) : (
-                    "loading"
-                  )}
-                  <Text color="red" fontSize="xs">
-                    {errors.formData?.departmentId?.message}
+                    {errors.formData?.departmentName?.message}
                   </Text>
                 </Box>
               </Stack>
@@ -722,7 +636,7 @@ const DrawerComponent = (props) => {
               <Button variant="outline" mr={3} onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" colorScheme="blue" disabled={!isValid}>
+              <Button type="submit" colorScheme="blue">
                 Submit
               </Button>
             </DrawerFooter>

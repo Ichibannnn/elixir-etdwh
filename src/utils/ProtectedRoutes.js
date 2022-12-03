@@ -9,7 +9,7 @@ let auth = sessionStorage.getItem("userToken")
 // let userToken =  {'token':false}
 
   return (
-    auth ? <Outlet /> : <Navigate to="*"/>
+    auth ? <Outlet /> : <Navigate to="/login"/>
   )
 }
 

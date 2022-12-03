@@ -1,5 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
+.logo-text {
+    background-image: linear-gradient(60deg, #44acf1, #6dd5fa);
+    background-clip: text;
+    color: transparent;
+}
+
+.form-color {
+    background-image: linear-gradient(120deg, #181536, #302b63, #1a1a2e);
+}
+
+.btn-color {
+    background-color: red;
+}
+
 
 .logo-title {
     font-size: 11px;
@@ -12,6 +26,7 @@
     letter-spacing: 1px;
     font-size: 10px;
     text-align: left;
+    color: #fff;
 }
 
 .subMenu{

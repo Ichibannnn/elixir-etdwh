@@ -39,15 +39,16 @@ const SidebarListMenu = ({ setNavbarData }) => {
   };
 
   return (
-    <Flex h="800px" mt={10} flexDirection="column" pl={2}>
+    <Flex h="800px" mt={10} flexDirection="column" pl={1}>
       {sidebarData.map((sidebarList, o) => (
         <Button
+          key={o}
           size="sm"
           bgColor="primary"
           justifyContent="left"
           onClick={() => showSideBarList(sidebarList)}
-          _hover={{ bg: "form", color: "black" }}
-          _focus={{ bg: "form", color: "black" }}
+          _hover={{ bg: "buttonColor" }}
+          _focus={{ bg: "buttonColor" }}
           w="full"
           borderRadius="0%"
         >
