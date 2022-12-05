@@ -50,6 +50,7 @@ import {
   AiTwotoneEdit,
 } from "react-icons/ai";
 import { RiInboxUnarchiveFill } from "react-icons/ri";
+import { BsBuilding } from "react-icons/bs";
 import { FaSearch } from "react-icons/fa";
 import { VscEye, VscEyeClosed } from "react-icons/vsc";
 import { SlUserFollow } from "react-icons/sl";
@@ -198,7 +199,7 @@ const Department = () => {
       bg="form"
       boxShadow="md"
     >
-      <Flex
+      {/* <Flex
         h="40px"
         w="full"
         alignItems="center"
@@ -207,20 +208,21 @@ const Department = () => {
         fontWeight="bold"
       >
         <Text>Department</Text>
-      </Flex>
+      </Flex> */}
 
       <Flex p={2} w="full">
         <Flex flexDirection="column" gap={1} w="full">
           <Flex justifyContent="space-between" alignItems="center">
             <HStack>
-              <InputGroup size="xs">
+              <InputGroup size="sm">
                 <InputLeftElement
                   pointerEvents="none"
                   children={<FaSearch color="black" />}
                 />
                 <Input
                   borderRadius="none"
-                  size="xs"
+                  size="sm"
+                  fontSize="xs"
                   type="text"
                   placeholder="Search: Department Name"
                   borderColor="gray.400"
@@ -285,8 +287,8 @@ const Department = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {department.department?.map((dep) => (
-                      <Tr key={dep.i}>
+                    {department.department?.map((dep, i) => (
+                      <Tr key={i}>
                         <Td fontSize="11px">{dep.id}</Td>
                         <Td fontSize="11px">{dep.departmentCode}</Td>
                         <Td fontSize="11px">{dep.departmentName}</Td>
@@ -294,7 +296,6 @@ const Department = () => {
                         <Td fontSize="11px">{dep.dateAdded}</Td>
 
                         <Td>
-                          <Flex>
                             <HStack>
                               <Button
                                 bg="none"
@@ -302,61 +303,49 @@ const Department = () => {
                               >
                                 <AiTwotoneEdit />
                               </Button>
-
                               <Popover>
+                                {({onClose}) => (
+                                  <>
                                 <PopoverTrigger>
                                   <Button p={0} bg="none">
                                     <RiInboxUnarchiveFill />
                                   </Button>
                                 </PopoverTrigger>
                                 <Portal>
-                                  <PopoverContent bg="primary" color="#fff">
-                                    <PopoverArrow bg="primary" />
-                                    <PopoverCloseButton />
-                                    <PopoverHeader>Confirmation!</PopoverHeader>
-                                    <PopoverBody>
-                                      <VStack>
-                                        {/* {dep.isActive === true ? (
-                                          <Text>
-                                            Are you sure you want to set this
-                                            department inactive?
-                                          </Text>
-                                        ) : (
-                                          <Text>
-                                            Are you sure you want to set this
-                                            department active?
-                                          </Text>
-                                        )} */}
-                                        {dep.isActive === true ? (
-                                          <Text>
-                                            Are you sure you want to set this
-                                            department inactive?
-                                          </Text>
-                                        ) : (
-                                          <Text>
-                                            Are you sure you want to set this
-                                            department active?
-                                          </Text>
-                                        )}
-                                        <Button
-                                          colorScheme="green"
-                                          size="sm"
-                                          onClick={() =>
-                                            changeStatusHandler(
-                                              dep.id,
-                                              dep.isActive
-                                            )
-                                          }
-                                        >
-                                          Yes
-                                        </Button>
-                                      </VStack>
-                                    </PopoverBody>
-                                  </PopoverContent>
+                                <PopoverContent bg="primary" color="#fff">
+                                  <PopoverArrow bg="primary" />
+                                  <PopoverCloseButton />
+                                  <PopoverHeader>Confirmation!</PopoverHeader>
+                                  <PopoverBody>
+                                    <VStack onClick={onClose}>
+                                      {dep.isActive === true ? (
+                                        <Text>
+                                          Are you sure you want to set this
+                                          department inactive?
+                                        </Text>
+                                      ) : (
+                                        <Text>
+                                          Are you sure you want to set this
+                                          department active?
+                                        </Text>
+                                      )}
+                                      <Button
+                                        colorScheme="green"
+                                        size="sm"
+                                        onClick={() => 
+                                           changeStatusHandler(dep.id,dep.isActive)
+                                        }
+                                      >
+                                        Yes
+                                      </Button>
+                                    </VStack>
+                                  </PopoverBody>
+                                </PopoverContent>
                                 </Portal>
+                                </>
+                                )}
                               </Popover>
                             </HStack>
-                          </Flex>
                         </Td>
                       </Tr>
                     ))}
@@ -367,11 +356,11 @@ const Department = () => {
 
             <Flex justifyContent="space-between" mt={3}>
               <Button
-                size="xs"
+                size="sm"
                 colorScheme="blue"
                 _hover={{ bg: "blue.400", color: "#fff" }}
                 w="auto"
-                leftIcon={<SlUserFollow />}
+                leftIcon={<BsBuilding />}
                 borderRadius="none"
                 onClick={addUserHandler}
               >

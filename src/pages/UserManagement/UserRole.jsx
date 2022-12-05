@@ -124,9 +124,9 @@ const UserRole = () => {
     setStatus(data);
   };
 
-  const changeStatusHandler = (id, status) => {
+  const changeStatusHandler = (id, isActive) => {
     let routeLabel;
-    if (status) {
+    if (isActive) {
       routeLabel = "InActiveRoles";
     } else {
       routeLabel = "ActivateRoles";
@@ -200,7 +200,7 @@ const UserRole = () => {
       bg="form"
       boxShadow="md"
     >
-      <Flex
+      {/* <Flex
         h="40px"
         w="full"
         alignItems="center"
@@ -209,20 +209,20 @@ const UserRole = () => {
         fontWeight="bold"
       >
         <Text>User Roles:</Text>
-      </Flex>
+      </Flex> */}
 
       <Flex p={2} w="full">
         <Flex flexDirection="column" gap={1} w="full">
           <Flex justifyContent="space-between" alignItems="center">
             <HStack>
-              <InputGroup size="xs">
+              <InputGroup size="sm">
                 <InputLeftElement
                   pointerEvents="none"
                   children={<FaSearch color="black" />}
                 />
                 <Input
                   borderRadius="none"
-                  size="xs"
+                  size="sm"
                   type="text"
                   placeholder="Search: User Role"
                   borderColor="gray.400"
@@ -311,56 +311,49 @@ const UserRole = () => {
                               </Button>
 
                               <Popover>
+                              {({onClose}) => (
+                                  <>
                                 <PopoverTrigger>
                                   <Button p={0} bg="none">
                                     <RiInboxUnarchiveFill />
                                   </Button>
                                 </PopoverTrigger>
                                 <Portal>
-                                  <PopoverContent bg="primary" color="#fff">
-                                    <PopoverArrow bg="primary" />
-                                    <PopoverCloseButton />
-                                    <PopoverHeader>Confirmation!</PopoverHeader>
-                                    <PopoverBody>
-                                      <VStack>
-                                        {/* {dep.isActive === true ? (
-                                            <Text>
-                                              Are you sure you want to set this
-                                              department inactive?
-                                            </Text>
-                                          ) : (
-                                            <Text>
-                                              Are you sure you want to set this
-                                              department active?
-                                            </Text>
-                                          )} */}
-                                        {rol.isActive === true ? (
-                                          <Text>
-                                            Are you sure you want to set this
-                                            department inactive?
-                                          </Text>
-                                        ) : (
-                                          <Text>
-                                            Are you sure you want to set this
-                                            department active?
-                                          </Text>
-                                        )}
-                                        <Button
-                                          colorScheme="green"
-                                          size="sm"
-                                          onClick={() =>
-                                            changeStatusHandler(
-                                              rol.id,
-                                              rol.isActive
-                                            )
-                                          }
-                                        >
-                                          Yes
-                                        </Button>
-                                      </VStack>
-                                    </PopoverBody>
-                                  </PopoverContent>
+                                <PopoverContent bg="primary" color="#fff">
+                                  <PopoverArrow bg="primary" />
+                                  <PopoverCloseButton />
+                                  <PopoverHeader>Confirmation!</PopoverHeader>
+                                  <PopoverBody>
+                                    <VStack onClick={onClose}>
+                                      {rol.isActive === true ? (
+                                        <Text>
+                                          Are you sure you want to set this
+                                          department inactive?
+                                        </Text>
+                                      ) : (
+                                        <Text>
+                                          Are you sure you want to set this
+                                          department active?
+                                        </Text>
+                                      )}
+                                      <Button
+                                        colorScheme="green"
+                                        size="sm"
+                                        onClick={() =>
+                                          changeStatusHandler(
+                                            rol.id,
+                                            rol.isActive
+                                          )
+                                        }
+                                      >
+                                        Yes
+                                      </Button>
+                                    </VStack>
+                                  </PopoverBody>
+                                </PopoverContent>
                                 </Portal>
+                                </>
+                                )}
                               </Popover>
                             </HStack>
                           </Flex>
@@ -382,7 +375,7 @@ const UserRole = () => {
 
             <Flex justifyContent="space-between" mt={3}>
               <Button
-                size="xs"
+                size="sm"
                 colorScheme="blue"
                 _hover={{ bg: "blue.400", color: "#fff" }}
                 w="auto"
@@ -390,7 +383,7 @@ const UserRole = () => {
                 borderRadius="none"
                 onClick={addRolesHandler}
               >
-                New Department
+                New Role
               </Button>
 
               {/* PROPS */}
@@ -449,8 +442,9 @@ const UserRole = () => {
                       <Select
                         onChange={handlePageSizeChange}
                         bg="#FFFFFF"
-                        size="sm"
+                        // size="sm"
                         mb={2}
+                        variant="outline"
                       >
                         <option value={Number(5)}>5</option>
                         <option value={Number(10)}>10</option>
@@ -563,7 +557,7 @@ const DrawerComponent = (props) => {
         <DrawerOverlay />
         <form onSubmit={handleSubmit(submitHandler)}>
           <DrawerContent>
-            <DrawerHeader borderBottomWidth="1px">Department Form</DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px">Role Form</DrawerHeader>
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">

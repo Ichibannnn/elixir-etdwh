@@ -81,6 +81,7 @@ const UserAccount = () => {
   const [pageTotal, setPageTotal] = useState(undefined);
   const [disableEdit, setDisableEdit] = useState(false);
 
+
   const fetchUserApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
       `User/GetAllUserWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`
@@ -149,13 +150,14 @@ const UserAccount = () => {
     request
       .put(`/User/${routeLabel}`, { id: id })
       .then((res) => {
-        ToastComponent("Success", "Status updated", "success", toast);
         getUserHandler();
+        ToastComponent("Success", "Status updated", "success", toast);
       })
       .catch((err) => {
         console.log(err);
       });
     // console.log(routeLabel);
+    
   };
 
   const searchHandler = (inputValue) => {
@@ -200,7 +202,7 @@ const UserAccount = () => {
       bg="form"
       boxShadow="md"
     >
-      <Flex
+      {/* <Flex
         h="40px"
         w="full"
         alignItems="center"
@@ -209,20 +211,20 @@ const UserAccount = () => {
         fontWeight="bold"
       >
         <Text>User Account</Text>
-      </Flex>
+      </Flex> */}
 
       <Flex p={2} w="full">
         <Flex flexDirection="column" gap={1} w="full">
           <Flex justifyContent="space-between" alignItems="center">
             <HStack>
-              <InputGroup size="xs">
+              <InputGroup size="sm">
                 <InputLeftElement
                   pointerEvents="none"
                   children={<FaSearch color="black" />}
                 />
                 <Input
                   borderRadius="none"
-                  size="xs"
+                  size="sm"
                   type="text"
                   placeholder="Search: Username"
                   borderColor="gray.400"
@@ -293,8 +295,8 @@ const UserAccount = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {users.user?.map((user) => (
-                      <Tr key={user.i}>
+                    {users.user?.map((user, i) => (
+                      <Tr key={i}>
                         <Td fontSize="11px">{user.id}</Td>
                         <Td fontSize="11px">{user.fullName}</Td>
                         <Td fontSize="11px">{user.userName}</Td>
@@ -313,58 +315,51 @@ const UserAccount = () => {
                                 <AiTwotoneEdit />
                               </Button>
 
+
                               <Popover>
+                              {({onClose}) => (
+                                  <>
                                 <PopoverTrigger>
                                   <Button p={0} bg="none">
                                     <RiInboxUnarchiveFill />
                                   </Button>
                                 </PopoverTrigger>
                                 <Portal>
-                                  <PopoverContent bg="primary" color="#fff">
-                                    <PopoverArrow bg="primary" />
-                                    <PopoverCloseButton />
-                                    <PopoverHeader>Confirmation!</PopoverHeader>
-                                    <PopoverBody>
-                                      <VStack>
-                                        {/* {user.isActive === true ? (
-                                          <Text>
-                                            Are you sure you want to set this
-                                            user inactive?
-                                          </Text>
-                                        ) : (
-                                          <Text>
-                                            Are you sure you want to set this
-                                            user active?
-                                          </Text>
-                                        )} */}
-
-                                        {user.isActive === true ? (
-                                          <Text>
-                                            Are you sure you want to set this
-                                            department inactive?
-                                          </Text>
-                                        ) : (
-                                          <Text>
-                                            Are you sure you want to set this
-                                            department active?
-                                          </Text>
-                                        )}
-                                        <Button
-                                          colorScheme="green"
-                                          size="sm"
-                                          onClick={() =>
-                                            changeStatusHandler(
-                                              user.id,
-                                              user.isActive
-                                            )
-                                          }
-                                        >
-                                          Yes
-                                        </Button>
-                                      </VStack>
-                                    </PopoverBody>
-                                  </PopoverContent>
+                                <PopoverContent bg="primary" color="#fff">
+                                  <PopoverArrow bg="primary" />
+                                  <PopoverCloseButton />
+                                  <PopoverHeader>Confirmation!</PopoverHeader>
+                                  <PopoverBody>
+                                    <VStack onClick={onClose}>
+                                      {user.isActive === true ? (
+                                        <Text>
+                                          Are you sure you want to set this
+                                          department inactive?
+                                        </Text>
+                                      ) : (
+                                        <Text>
+                                          Are you sure you want to set this
+                                          department active?
+                                        </Text>
+                                      )}
+                                      <Button
+                                        colorScheme="green"
+                                        size="sm"
+                                        onClick={() =>
+                                          changeStatusHandler(
+                                            user.id,
+                                            user.isActive
+                                          )
+                                        }
+                                      >
+                                        Yes
+                                      </Button>
+                                    </VStack>
+                                  </PopoverBody>
+                                </PopoverContent>
                                 </Portal>
+                                </>
+                                )}
                               </Popover>
                             </HStack>
                           </Flex>
@@ -378,7 +373,7 @@ const UserAccount = () => {
 
             <Flex justifyContent="space-between">
               <Button
-                size="xs"
+                size="sm"
                 colorScheme="blue"
                 _hover={{ bg: "blue.400", color: "#fff" }}
                 w="auto"
@@ -444,9 +439,8 @@ const UserAccount = () => {
                       </PaginationNext>
                       <Select
                         onChange={handlePageSizeChange}
-                        bg="#FFFFFF"
+                        bg="#fff"
                         size="sm"
-                        mb={2}
                       >
                         <option value={Number(5)}>5</option>
                         <option value={Number(10)}>10</option>
@@ -491,7 +485,7 @@ const DrawerComponent = (props) => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [roles, setRoles] = useState([]);
-  const [department, setDepartment] = useState([]);
+  const [departments, setDepartment] = useState([]);
   const toast = useToast();
 
   const {
@@ -603,7 +597,7 @@ const DrawerComponent = (props) => {
     // };
   }, [editData]);
 
-  console.log(watch("formData.id"));
+  console.log(watch("formData.userRoleId"));
 
   return (
     <>
@@ -620,12 +614,6 @@ const DrawerComponent = (props) => {
                   <Input
                     {...register("formData.fullName")}
                     placeholder="Please enter Fullname"
-                    // onChange={(e) =>
-                    //   setEditData((prevValue) => ({
-                    //     ...prevValue,
-                    //     fullName: e.target.value,
-                    //   }))
-                    // }
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.fullName?.message}
@@ -651,12 +639,6 @@ const DrawerComponent = (props) => {
                       type={showPassword ? "text" : "password"}
                       {...register("formData.password")}
                       placeholder="Please enter Password"
-                      // onChange={(e) =>
-                      //   setEditData((prevValue) => ({
-                      //     ...prevValue,
-                      //     password: e.target.value,
-                      //   }))
-                      // }
                     />
                     <InputRightElement>
                       <Button
@@ -698,14 +680,14 @@ const DrawerComponent = (props) => {
 
                 <Box>
                   <FormLabel>Department:</FormLabel>
-                  {department.length > 0 ? (
+                  {departments.length > 0 ? (
                     <Select
                       {...register("formData.departmentId")}
                       placeholder="Select Department"
                     >
-                      {department.map((dep) => (
-                        <option key={dep.id} value={dep.id}>
-                          {dep.departmentName}
+                      {departments.map((dept) => (
+                        <option key={dept.id} value={dept.id}>
+                          {dept.departmentName}
                         </option>
                       ))}
                     </Select>
