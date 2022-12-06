@@ -18,7 +18,7 @@ export const sidebarData = [
                 id: 3,
                 subname: 'Raw Materials',
                 path: '/maincontent/setup/raw-materials',
-                
+
             }
         ]
     },
@@ -41,6 +41,11 @@ export const sidebarData = [
                 id: 12,
                 subname: 'Department',
                 path: '/user/department',
+            },
+            {
+                id: 13,
+                subname: 'Module Management',
+                path: '/user/module-management',
             }
         ]
     },

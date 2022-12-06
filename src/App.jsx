@@ -12,6 +12,7 @@ import Department from "./pages/UserManagement/Department";
 import ProtectedRoutes from "./utils/ProtectedRoutes";
 import ErrorPage from "./pages/ErrorPage";
 import UserRole from "./pages/UserManagement/UserRole";
+import ModuleManagement from "./pages/UserManagement/ModuleManagement";
 
 const App = () => {
   return (
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/user/user-account" element={<UserAccount />} />
           <Route path="/user/user-role" element={<UserRole />} />
           <Route path="/user/department" element={<Department />} />
+          <Route path="/user/module-management" element={<ModuleManagement />} />
           <Route path="*" element={<ErrorPage />} />
         </Route>
       </Route>

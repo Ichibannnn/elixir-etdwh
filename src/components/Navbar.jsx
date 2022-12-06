@@ -6,7 +6,7 @@ const Navbar = ({ navBarData }) => {
   var navigate = useNavigate();
   const { pathname } = useLocation();
 
-  console.log(pathname);
+  // console.log(pathname);
 
   return (
     <Flex bg="secondary" h="37px" p={1} alignItems="center" boxShadow="sm">

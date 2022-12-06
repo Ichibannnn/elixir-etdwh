@@ -38,27 +38,27 @@ import {
   PopoverAnchor,
   VStack,
   Portal,
-} from "@chakra-ui/react";
-import React, { useState } from "react";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+} from '@chakra-ui/react'
+import React, { useState } from 'react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import {
   AiFillDelete,
   AiOutlinePlus,
   AiOutlineUserAdd,
   AiTwotoneEdit,
-} from "react-icons/ai";
-import { RiInboxUnarchiveFill } from "react-icons/ri";
-import { FaSearch } from "react-icons/fa";
-import { VscEye, VscEyeClosed } from "react-icons/vsc";
-import { SlUserFollow } from "react-icons/sl";
-import PageScroll from "../../utils/PageScroll";
-import request from "../../services/ApiClient";
-import { ToastComponent } from "../../components/Toast";
-import Swal from "sweetalert2";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { decodeUser } from "../../services/decode-user";
+} from 'react-icons/ai'
+import { RiInboxUnarchiveFill } from 'react-icons/ri'
+import { FaSearch } from 'react-icons/fa'
+import { VscEye, VscEyeClosed } from 'react-icons/vsc'
+import { SlUserFollow } from 'react-icons/sl'
+import PageScroll from '../../utils/PageScroll'
+import request from '../../services/ApiClient'
+import { ToastComponent } from '../../components/Toast'
+import Swal from 'sweetalert2'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import { decodeUser } from '../../services/decode-user'
 import {
   Pagination,
   usePagination,
@@ -67,32 +67,31 @@ import {
   PaginationPrevious,
   PaginationContainer,
   PaginationPageGroup,
-} from "@ajna/pagination";
+} from '@ajna/pagination'
 
 const UserAccount = () => {
-  const [users, setUsers] = useState([]);
-  const [editData, setEditData] = useState([]);
-  const [status, setStatus] = useState(true);
-  const [search, setSearch] = useState("");
-  const toast = useToast();
-  const currentUser = decodeUser();
+  const [users, setUsers] = useState([])
+  const [editData, setEditData] = useState([])
+  const [status, setStatus] = useState(true)
+  const [search, setSearch] = useState('')
+  const toast = useToast()
+  const currentUser = decodeUser()
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [pageTotal, setPageTotal] = useState(undefined);
-  const [disableEdit, setDisableEdit] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true)
+  const [pageTotal, setPageTotal] = useState(undefined)
+  const [disableEdit, setDisableEdit] = useState(false)
 
   const fetchUserApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
-      `User/GetAllUserWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`
-    );
+      `User/GetAllUserWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+    )
 
-    return response.data;
-  };
+    return response.data
+  }
 
   //PAGINATION
-  const outerLimit = 2;
-  const innerLimit = 2;
+  const outerLimit = 2
+  const innerLimit = 2
   const {
     currentPage,
     setCurrentPage,
@@ -107,88 +106,88 @@ const UserAccount = () => {
       inner: innerLimit,
     },
     initialState: { currentPage: 1, pageSize: 5 },
-  });
+  })
 
   //SHOW USER DATA----
   const getUserHandler = () => {
     fetchUserApi(currentPage, pageSize, status, search).then((res) => {
-      setIsLoading(false);
-      setUsers(res);
-      setPageTotal(res.totalCount);
-    });
-  };
+      setIsLoading(false)
+      setUsers(res)
+      setPageTotal(res.totalCount)
+    })
+  }
 
   useEffect(() => {
-    getUserHandler();
+    getUserHandler()
 
     return () => {
-      setUsers([]);
-    };
-  }, [currentPage, pageSize, status, search]);
+      setUsers([])
+    }
+  }, [currentPage, pageSize, status, search])
 
   const handlePageChange = (nextPage) => {
-    setCurrentPage(nextPage);
-  };
+    setCurrentPage(nextPage)
+  }
 
   const handlePageSizeChange = (e) => {
-    const pageSize = Number(e.target.value);
-    setPageSize(pageSize);
-  };
+    const pageSize = Number(e.target.value)
+    setPageSize(pageSize)
+  }
 
+  //STATUS
   const statusHandler = (data) => {
-    setStatus(data);
-  };
+    setStatus(data)
+  }
 
   const changeStatusHandler = (id, isActive) => {
-    let routeLabel;
+    let routeLabel
     if (isActive) {
-      routeLabel = "InactiveUser";
+      routeLabel = 'InactiveUser'
     } else {
-      routeLabel = "ActivateUser";
+      routeLabel = 'ActivateUser'
     }
 
     request
       .put(`/User/${routeLabel}`, { id: id })
       .then((res) => {
-        getUserHandler();
-        ToastComponent("Success", "Status updated", "success", toast);
+        ToastComponent('Success', 'Status updated', 'success', toast)
+        getUserHandler()
       })
       .catch((err) => {
-        console.log(err);
-      });
-    // console.log(routeLabel);
-    
-  };
+        console.log(err)
+      })
+    console.log(routeLabel)
+  }
 
   const searchHandler = (inputValue) => {
-    setSearch(inputValue);
-    console.log(inputValue);
-  };
+    setSearch(inputValue)
+    console.log(inputValue)
+  }
 
   //ADD USER HANDLER---
   const addUserHandler = () => {
     setEditData({
-      id: "",
-      fullName: "",
-      userName: "",
-      password: "",
-      userRoleId: "",
-      departmentId: "",
+      id: '',
+      fullName: '',
+      userName: '',
+      password: '',
+      userRoleId: '',
+      departmentId: '',
       addedBy: currentUser.userName,
-      modifiedBy: "",
-    });
-    onOpen();
-    setDisableEdit(false);
-  };
+      modifiedBy: '',
+    })
+    onOpen()
+    setDisableEdit(false)
+  }
 
   //EDIT USER--
   const editUserHandler = (user) => {
-    setDisableEdit(true);
-    setEditData(user);
-    onOpen();
-  };
+    setDisableEdit(true)
+    setEditData(user)
+    onOpen()
+  }
   //FOR DRAWER
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   // console.log(status);
 
@@ -228,7 +227,7 @@ const UserAccount = () => {
                   type="text"
                   placeholder="Search: Username"
                   borderColor="gray.400"
-                  _hover={{ borderColor: "gray.400" }}
+                  _hover={{ borderColor: 'gray.400' }}
                   onChange={(e) => searchHandler(e.target.value)}
                 />
               </InputGroup>
@@ -306,63 +305,62 @@ const UserAccount = () => {
                         <Td fontSize="11px">{user.dateAdded}</Td>
 
                         <Td>
-                          <Flex>
-                            <HStack>
-                              <Button
-                                bg="none"
-                                onClick={() => editUserHandler(user)}
-                              >
-                                <AiTwotoneEdit />
-                              </Button>
+                          <HStack>
+                            <Button
+                              bg="none"
+                              onClick={() => editUserHandler(user)}
+                            >
+                              <AiTwotoneEdit />
+                            </Button>
 
-
-                              <Popover>
-                              {({onClose}) => (
-                                  <>
-                                <PopoverTrigger>
-                                  <Button p={0} bg="none">
-                                    <RiInboxUnarchiveFill />
-                                  </Button>
-                                </PopoverTrigger>
-                                <Portal>
-                                <PopoverContent bg="primary" color="#fff">
-                                  <PopoverArrow bg="primary" />
-                                  <PopoverCloseButton />
-                                  <PopoverHeader>Confirmation!</PopoverHeader>
-                                  <PopoverBody>
-                                    <VStack onClick={onClose}>
-                                      {user.isActive === true ? (
-                                        <Text>
-                                          Are you sure you want to set this
-                                          department inactive?
-                                        </Text>
-                                      ) : (
-                                        <Text>
-                                          Are you sure you want to set this
-                                          department active?
-                                        </Text>
-                                      )}
-                                      <Button
-                                        colorScheme="green"
-                                        size="sm"
-                                        onClick={() =>
-                                          changeStatusHandler(
-                                            user.id,
-                                            user.isActive
-                                          )
-                                        }
-                                      >
-                                        Yes
-                                      </Button>
-                                    </VStack>
-                                  </PopoverBody>
-                                </PopoverContent>
-                                </Portal>
+                            <Popover>
+                              {({ onClose }) => (
+                                <>
+                                  <PopoverTrigger>
+                                    <Button p={0} bg="none">
+                                      <RiInboxUnarchiveFill />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <Portal>
+                                    <PopoverContent bg="primary" color="#fff">
+                                      <PopoverArrow bg="primary" />
+                                      <PopoverCloseButton />
+                                      <PopoverHeader>
+                                        Confirmation!
+                                      </PopoverHeader>
+                                      <PopoverBody>
+                                        <VStack onClick={onClose}>
+                                          {user.isActive === true ? (
+                                            <Text>
+                                              Are you sure you want to set this
+                                              department inactive?
+                                            </Text>
+                                          ) : (
+                                            <Text>
+                                              Are you sure you want to set this
+                                              department active?
+                                            </Text>
+                                          )}
+                                          <Button
+                                            colorScheme="green"
+                                            size="sm"
+                                            onClick={() =>
+                                              changeStatusHandler(
+                                                user.id,
+                                                user.isActive,
+                                              )
+                                            }
+                                          >
+                                            Yes
+                                          </Button>
+                                        </VStack>
+                                      </PopoverBody>
+                                    </PopoverContent>
+                                  </Portal>
                                 </>
-                                )}
-                              </Popover>
-                            </HStack>
-                          </Flex>
+                              )}
+                            </Popover>
+                          </HStack>
                         </Td>
                       </Tr>
                     ))}
@@ -375,7 +373,7 @@ const UserAccount = () => {
               <Button
                 size="sm"
                 colorScheme="blue"
-                _hover={{ bg: "blue.400", color: "#fff" }}
+                _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
                 leftIcon={<SlUserFollow />}
                 borderRadius="none"
@@ -407,16 +405,16 @@ const UserAccount = () => {
                       bg="primary"
                       color="white"
                       p={1}
-                      _hover={{ bg: "green", color: "white" }}
+                      _hover={{ bg: 'green', color: 'white' }}
                       size="sm"
                     >
-                      {"<<"}
+                      {'<<'}
                     </PaginationPrevious>
                     <PaginationPageGroup ml={1} mr={1}>
                       {pages.map((page) => (
                         <PaginationPage
-                          _hover={{ bg: "green", color: "white" }}
-                          _focus={{ bg: "green" }}
+                          _hover={{ bg: 'green', color: 'white' }}
+                          _focus={{ bg: 'green' }}
                           p={3}
                           bg="primary"
                           color="white"
@@ -431,11 +429,11 @@ const UserAccount = () => {
                         bg="primary"
                         color="white"
                         p={1}
-                        _hover={{ bg: "green", color: "white" }}
+                        _hover={{ bg: 'green', color: 'white' }}
                         size="sm"
                         mb={2}
                       >
-                        {">>"}
+                        {'>>'}
                       </PaginationNext>
                       <Select
                         onChange={handlePageSizeChange}
@@ -456,37 +454,37 @@ const UserAccount = () => {
         </Flex>
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default UserAccount;
+export default UserAccount
 
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    fullName: yup.string().required("Fullname is required"),
+    fullName: yup.string().required('Fullname is required'),
     userName: yup
       .string()
-      .required("Username is required")
-      .min(5, "Username must be at least 5 characters"),
+      .required('Username is required')
+      .min(5, 'Username must be at least 5 characters'),
     password: yup
       .string()
-      .required("Password is required")
-      .min(5, "Password must be at least 5 characters"),
-    userRoleId: yup.string().required("User Role is required"),
-    departmentId: yup.string().required("Department is required"),
+      .required('Password is required')
+      .min(5, 'Password must be at least 5 characters'),
+    userRoleId: yup.string().required('User Role is required'),
+    departmentId: yup.string().required('Department is required'),
   }),
-});
+})
 
-const currentUser = decodeUser();
+const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
-  const { isOpen, onClose, getUserHandler, editData, disableEdit } = props;
+  const { isOpen, onClose, getUserHandler, editData, disableEdit } = props
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [roles, setRoles] = useState([]);
-  const [departments, setDepartment] = useState([]);
-  const toast = useToast();
+  const [showPassword, setShowPassword] = useState(false)
+  const [roles, setRoles] = useState([])
+  const [departments, setDepartment] = useState([])
+  const toast = useToast()
 
   const {
     register,
@@ -497,88 +495,88 @@ const DrawerComponent = (props) => {
     reset,
   } = useForm({
     resolver: yupResolver(schema),
-    mode: "onChange",
+    mode: 'onChange',
     defaultValues: {
       formData: {
-        id: "",
-        fullName: "",
-        userName: "",
-        password: "",
-        userRoleId: "",
-        departmentId: "",
+        id: '',
+        fullName: '',
+        userName: '',
+        password: '',
+        userRoleId: '',
+        departmentId: '',
         addedBy: currentUser?.userName,
-        modifiedBy: "",
+        modifiedBy: '',
       },
     },
-  });
+  })
 
   const fetchRoles = async () => {
     try {
-      const res = await request.get("Role/GetAllActiveRoles");
-      setRoles(res.data);
+      const res = await request.get('Role/GetAllActiveRoles')
+      setRoles(res.data)
     } catch (error) {}
-  };
+  }
 
   useEffect(() => {
     try {
-      fetchRoles();
+      fetchRoles()
     } catch (error) {}
-  }, []);
+  }, [])
 
   const fetchDepartment = async () => {
     try {
-      const res = await request.get("User/GetAllActiveDepartment");
-      setDepartment(res.data);
+      const res = await request.get('User/GetAllActiveDepartment')
+      setDepartment(res.data)
     } catch (error) {}
-  };
+  }
 
   useEffect(() => {
     try {
-      fetchDepartment();
+      fetchDepartment()
     } catch (error) {}
-  }, []);
+  }, [])
 
   const submitHandler = async (data) => {
     try {
-      if (data.formData.id === "") {
-        delete data.formData["id"];
+      if (data.formData.id === '') {
+        delete data.formData['id']
         const res = await request
-          .post("User/AddNewUser", data.formData)
+          .post(`User/AddNewUser`, data.formData)
           .then((res) => {
-            ToastComponent("Success", "New user created!", "success", toast);
-            getUserHandler();
-            onClose();
+            ToastComponent('Success', 'New user created!', 'success', toast)
+            getUserHandler()
+            onClose()
           })
           .catch((err) => {
-            ToastComponent("Error", err.response.data, "error", toast);
+            ToastComponent('Error', err.response.data, 'error', toast)
             // data.formData.id = "";
-          });
+          })
       } else {
         const res = await request
           .put(`User/UpdateUserInfo`, data.formData)
           .then((res) => {
-            ToastComponent("Success", "User Updated", "success", toast);
-            getUserHandler();
-            onClose(onClose);
+            ToastComponent('Success', 'User Updated', 'success', toast)
+            getUserHandler()
+            onClose(onClose)
           })
           .catch((error) => {
             ToastComponent(
-              "Update Failed",
+              'Update Failed',
               error.response.data,
-              "warning",
-              toast
-            );
-          });
+              'warning',
+              toast,
+            )
+          })
       }
     } catch (err) {}
-  };
+  }
 
   // console.log(editData);
 
   useEffect(() => {
     if (editData.id) {
       setValue(
-        "formData",
+        'formData',
         {
           id: editData.id,
           fullName: editData?.fullName,
@@ -588,16 +586,16 @@ const DrawerComponent = (props) => {
           departmentId: editData?.departmentId,
           modifiedBy: currentUser.userName,
         },
-        { shouldValidate: true }
-      );
+        { shouldValidate: true },
+      )
     }
 
     // return () => {
     //   ;
     // };
-  }, [editData]);
+  }, [editData])
 
-  console.log(watch("formData.userRoleId"));
+  console.log(watch('formData.userRoleId'))
 
   return (
     <>
@@ -612,7 +610,7 @@ const DrawerComponent = (props) => {
                 <Box>
                   <FormLabel>Full Name:</FormLabel>
                   <Input
-                    {...register("formData.fullName")}
+                    {...register('formData.fullName')}
                     placeholder="Please enter Fullname"
                   />
                   <Text color="red" fontSize="xs">
@@ -623,7 +621,7 @@ const DrawerComponent = (props) => {
                 <Box>
                   <FormLabel>Username:</FormLabel>
                   <Input
-                    {...register("formData.userName")}
+                    {...register('formData.userName')}
                     placeholder="Please enter Fullname"
                     disabled={disableEdit}
                   />
@@ -636,8 +634,8 @@ const DrawerComponent = (props) => {
                   <FormLabel>Password:</FormLabel>
                   <InputGroup>
                     <Input
-                      type={showPassword ? "text" : "password"}
-                      {...register("formData.password")}
+                      type={showPassword ? 'text' : 'password'}
+                      {...register('formData.password')}
                       placeholder="Please enter Password"
                     />
                     <InputRightElement>
@@ -661,7 +659,7 @@ const DrawerComponent = (props) => {
                   <FormLabel>Role:</FormLabel>
                   {roles.length > 0 ? (
                     <Select
-                      {...register("formData.userRoleId")}
+                      {...register('formData.userRoleId')}
                       placeholder="Select Role"
                     >
                       {roles.map((rol) => (
@@ -671,7 +669,7 @@ const DrawerComponent = (props) => {
                       ))}
                     </Select>
                   ) : (
-                    "loading"
+                    'loading'
                   )}
                   <Text color="red" fontSize="xs">
                     {errors.formData?.userRoleId?.message}
@@ -682,7 +680,7 @@ const DrawerComponent = (props) => {
                   <FormLabel>Department:</FormLabel>
                   {departments.length > 0 ? (
                     <Select
-                      {...register("formData.departmentId")}
+                      {...register('formData.departmentId')}
                       placeholder="Select Department"
                     >
                       {departments.map((dept) => (
@@ -692,7 +690,7 @@ const DrawerComponent = (props) => {
                       ))}
                     </Select>
                   ) : (
-                    "loading"
+                    'loading'
                   )}
                   <Text color="red" fontSize="xs">
                     {errors.formData?.departmentId?.message}
@@ -712,5 +710,5 @@ const DrawerComponent = (props) => {
         </form>
       </Drawer>
     </>
-  );
-};
+  )
+}

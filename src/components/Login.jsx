@@ -8,85 +8,85 @@ import {
   Text,
   VStack,
   useToast,
-} from "@chakra-ui/react";
-import React, { useState } from "react";
-import request from "../services/ApiClient";
-import { useNavigate } from "react-router-dom";
-import CryptoJS from "crypto-js";
+} from '@chakra-ui/react'
+import React, { useState } from 'react'
+import request from '../services/ApiClient'
+import { useNavigate } from 'react-router-dom'
+import CryptoJS from 'crypto-js'
 
 //Toast
-import { ToastComponent } from "./Toast";
-import { saltKey } from "../saltkey";
-import { decodeUser } from "../services/decode-user";
+import { ToastComponent } from './Toast'
+import { saltKey } from '../saltkey'
+import { decodeUser } from '../services/decode-user'
 
 const Login = () => {
-  var [username, setUsername] = useState("");
-  var [password, setPassword] = useState("");
-  var navigate = useNavigate();
-  var [Loader, setLoader] = useState(false);
-  const toast = useToast();
-  const user = decodeUser();
+  var [username, setUsername] = useState('')
+  var [password, setPassword] = useState('')
+  var navigate = useNavigate()
+  var [Loader, setLoader] = useState(false)
+  const toast = useToast()
+  const user = decodeUser()
 
   const submitHandler = async (event, user) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    var login = { username, password };
+    var login = { username, password }
 
-    if ((username || password) === "") {
+    if ((username || password) === '') {
       return ToastComponent(
-        "Login Error",
-        "Username and Password is required!",
-        "error",
-        toast
-      );
-    } else if ((username && password) === "") {
+        'Login Error',
+        'Username and Password is required!',
+        'error',
+        toast,
+      )
+    } else if ((username && password) === '') {
       return ToastComponent(
-        "Login Error",
-        "Please fill up username or password!",
-        "error",
-        toast
-      );
+        'Login Error',
+        'Please fill up username or password!',
+        'error',
+        toast,
+      )
     } else {
-      setLoader(true);
+      setLoader(true)
       var response = await request
-        .post("Login/authenticate", login)
+        .post('Login/authenticate', login)
         .then((response) => {
           var ciphertext = CryptoJS.AES.encrypt(
             JSON.stringify(response?.data),
-            saltKey
-          ).toString();
-          sessionStorage.setItem("userToken", ciphertext);
-          setLoader(false);
-          navigate("/");
+            saltKey,
+          ).toString()
+          sessionStorage.setItem('userToken', ciphertext)
+          setLoader(false)
+          navigate('/')
           ToastComponent(
-            "Login Success",
+            'Login Success',
             `Welcome to Elixir ETD! ${response?.data.fullName}`,
-            "success",
-            toast
-          );
+            'success',
+            toast,
+          )
         })
         .catch((err) => {
-          ToastComponent("Login", err.response.data.message, "error", toast);
-          setLoader(false);
-        });
+          ToastComponent('Login', err.response.data.message, 'error', toast)
+          setLoader(false)
+        })
     }
-  };
+  }
 
   return (
     <Flex h="100vh" justifyContent="center" alignItems="center">
       <Box
-        w={["full", "sm"]}
+        w={['full', 'sm']}
         p={[8, 8]}
-        mt={[20, "10vh"]}
+        mt={[20, '10vh']}
         mx="auto"
         borderRadius={10}
         alignItems="center"
         justifyContent="center"
-        bg="#1A202C"
+        className="form-color"
         boxShadow="lg"
       >
         <VStack spacing={8} align="flex-start" w="full">
-          <VStack spacing={-1} align={["flex", "center"]} w="full">
+          <VStack spacing={-1} align={['flex', 'center']} w="full">
             <Image
               boxSize="100px"
               objectFit="fill"
@@ -109,43 +109,42 @@ const Login = () => {
               <Input
                 placeholder="Enter username"
                 rounded="none"
-                variant="filled"
+                variant="outline"
                 borderColor="whiteAlpha.300"
                 fontSize="xs"
                 color="#fff"
-                bg="#1A202C"
-                _hover={{ bg: "#1A202C" }}
+                // bg="#1A202C"
+                _hover={{ bg: '#1A202C' }}
                 onChange={(event) => {
-                  setUsername(event.target.value);
+                  setUsername(event.target.value)
                 }}
               />
-
               <Text color="#fff" fontSize="13px">
                 Password
               </Text>
               <Input
                 placeholder="Enter password"
                 rounded="none"
-                variant="filled"
+                variant="outline"
                 type="password"
                 color="#fff"
                 borderColor="whiteAlpha.300"
-                bg="#1A202C"
-                _hover={{ bg: "#1A202C" }}
+                // bg="#1A202C"
+                _hover={{ bg: '#1A202C' }}
                 fontSize="xs"
                 onChange={(event) => {
-                  setPassword(event.target.value);
+                  setPassword(event.target.value)
                 }}
               />
+              c1
               <Button
-                rounded={5}
+                borderRadius="none"
                 fontSize="13px"
                 type="submit"
                 colorScheme="blue"
                 w="full"
                 mt={5}
                 isLoading={Loader}
-                LoadingText="Loading"
               >
                 Login
               </Button>
@@ -154,7 +153,7 @@ const Login = () => {
         </VStack>
       </Box>
     </Flex>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login

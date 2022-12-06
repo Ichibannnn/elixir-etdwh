@@ -51,7 +51,6 @@ import {
 } from 'react-icons/ai'
 import { RiInboxUnarchiveFill } from 'react-icons/ri'
 import { FaSearch, FaUsers, FaUserTag } from 'react-icons/fa'
-import { VscEye, VscEyeClosed } from 'react-icons/vsc'
 import { SlUserFollow } from 'react-icons/sl'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
@@ -70,8 +69,8 @@ import {
   PaginationPageGroup,
 } from '@ajna/pagination'
 
-const UserRole = () => {
-  const [roles, setRoles] = useState([])
+const ModuleManagement = () => {
+  const [module, setModule] = useState([])
   const [editData, setEditData] = useState([])
   const [status, setStatus] = useState(true)
   const [search, setSearch] = useState('')
@@ -82,10 +81,10 @@ const UserRole = () => {
   const [pageTotal, setPageTotal] = useState(undefined)
   const [disableEdit, setDisableEdit] = useState(false)
 
-  // FETCH API ROLES:
-  const fetchRolesApi = async (pageNumber, pageSize, status, search) => {
+  // FETCH API MODULES:
+  const fetchModuleApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
-      `Role/GetAllRoleWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+      `Module/GetAllModulesWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
     )
 
     return response.data
@@ -127,16 +126,16 @@ const UserRole = () => {
   const changeStatusHandler = (id, isActive) => {
     let routeLabel
     if (isActive) {
-      routeLabel = 'InActiveRoles'
+      routeLabel = 'InActiveModule'
     } else {
-      routeLabel = 'ActivateRoles'
+      routeLabel = 'ActivateModule'
     }
 
     request
-      .put(`/Role/${routeLabel}`, { id: id })
+      .put(`/Module/${routeLabel}`, { id: id })
       .then((res) => {
         ToastComponent('Success', 'Status updated', 'success', toast)
-        getRolesHandler()
+        getModuleHandler()
       })
       .catch((err) => {
         console.log(err)
@@ -144,20 +143,20 @@ const UserRole = () => {
     console.log(routeLabel)
   }
 
-  //SHOW ROLES DATA----
-  const getRolesHandler = () => {
-    fetchRolesApi(currentPage, pageSize, status, search).then((res) => {
+  //SHOW MODULE DATA----
+  const getModuleHandler = () => {
+    fetchModuleApi(currentPage, pageSize, status, search).then((res) => {
       setIsLoading(false)
-      setRoles(res)
+      setModule(res)
       setPageTotal(res.totalCount)
     })
   }
 
   useEffect(() => {
-    getRolesHandler()
+    getModuleHandler()
 
     return () => {
-      setRoles([])
+      setModule([])
     }
   }, [currentPage, pageSize, status, search])
 
@@ -167,11 +166,13 @@ const UserRole = () => {
     console.log(inputValue)
   }
 
-  //ADD ROLE HANDLER---
-  const addRolesHandler = () => {
+  //ADD MODULE HANDLER---
+  const addModuleHandler = () => {
     setEditData({
       id: '',
-      roleName: '',
+      mainMenuId: '',
+      subMenuName: '',
+      moduleName: '',
       addedBy: currentUser.userName,
       modifiedBy: '',
     })
@@ -179,16 +180,21 @@ const UserRole = () => {
     setDisableEdit(false)
   }
 
-  //EDIT ROLE--
-  const editRolesHandler = (role) => {
+  //EDIT MODULE--
+  const editModuleHandler = (module) => {
     setDisableEdit(true)
-    setEditData(role)
+    setEditData(module)
     onOpen()
-    console.log(role.roleName)
+    console.log(module.mainMenuId)
   }
 
-  //FOR DRAWER
+  //FOR DRAWER (Drawer / Drawer Tagging)
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const {
+    isOpen: isDrawerTaggingOpen,
+    onOpen: openDrawerTagging,
+    onClose: closeDrawerTagging,
+  } = useDisclosure()
 
   return (
     <Flex
@@ -224,7 +230,7 @@ const UserRole = () => {
                   borderRadius="none"
                   size="sm"
                   type="text"
-                  placeholder="Search: User Role"
+                  placeholder="Search: Sub-Menu Name"
                   borderColor="gray.400"
                   _hover={{ borderColor: 'gray.400' }}
                   onChange={(e) => searchHandler(e.target.value)}
@@ -270,42 +276,37 @@ const UserRole = () => {
                         ID
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        User Role
+                        Menu Name
+                      </Th>
+                      <Th color="#D6D6D6" fontSize="10px">
+                        Sub-Menu Name
+                      </Th>
+                      <Th color="#D6D6D6" fontSize="10px">
+                        Date Added
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Added By
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Date Added
-                      </Th>
-                      {/* <Th color="#D6D6D6" fontSize="10px">
-                          Modified By
-                        </Th>
-                        <Th color="#D6D6D6" fontSize="10px">
-                          Date Modified
-                        </Th> */}
-                      <Th color="#D6D6D6" fontSize="10px">
                         Action
-                      </Th>
-                      <Th color="#D6D6D6" fontSize="10px">
-                        Access
                       </Th>
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {roles.role?.map((rol, i) => (
+                    {module.module?.map((mod, i) => (
                       <Tr key={i}>
-                        <Td fontSize="11px">{rol.id}</Td>
-                        <Td fontSize="11px">{rol.roleName}</Td>
-                        <Td fontSize="11px">{rol.addedBy}</Td>
-                        <Td fontSize="11px">{rol.dateAdded}</Td>
+                        <Td fontSize="11px">{mod.id}</Td>
+                        <Td fontSize="11px">{mod.mainMenu}</Td>
+                        <Td fontSize="11px">{mod.subMenuName}</Td>
+                        <Td fontSize="11px">{mod.dateAdded}</Td>
+                        <Td fontSize="11px">{mod.addedBy}</Td>
 
                         <Td>
                           <Flex>
                             <HStack>
                               <Button
                                 bg="none"
-                                onClick={() => editRolesHandler(rol)}
+                                onClick={() => editModuleHandler(mod)}
                               >
                                 <AiTwotoneEdit />
                               </Button>
@@ -327,7 +328,7 @@ const UserRole = () => {
                                         </PopoverHeader>
                                         <PopoverBody>
                                           <VStack onClick={onClose}>
-                                            {rol.isActive === true ? (
+                                            {mod.isActive === true ? (
                                               <Text>
                                                 Are you sure you want to set
                                                 this department inactive?
@@ -343,8 +344,8 @@ const UserRole = () => {
                                               size="sm"
                                               onClick={() =>
                                                 changeStatusHandler(
-                                                  rol.id,
-                                                  rol.isActive,
+                                                  mod.id,
+                                                  mod.isActive,
                                                 )
                                               }
                                             >
@@ -360,14 +361,14 @@ const UserRole = () => {
                             </HStack>
                           </Flex>
                         </Td>
-                        <Td>
+                        {/* <Td>
                           <Button
                             bg="none"
                             // onClick={() => editRolesHandler(rol)}
                           >
                             <FaUserTag />
                           </Button>
-                        </Td>
+                        </Td> */}
                       </Tr>
                     ))}
                   </Tbody>
@@ -381,11 +382,11 @@ const UserRole = () => {
                 colorScheme="blue"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                leftIcon={<FaUsers />}
+                // leftIcon={<IoDocumentsSharp />}
                 borderRadius="none"
-                onClick={addRolesHandler}
+                onClick={addModuleHandler}
               >
-                New Role
+                New Module
               </Button>
 
               {/* PROPS */}
@@ -393,8 +394,8 @@ const UserRole = () => {
                 <DrawerComponent
                   isOpen={isOpen}
                   onClose={onClose}
-                  fetchRolesApi={fetchRolesApi}
-                  getRolesHandler={getRolesHandler}
+                  fetchModuleApi={fetchModuleApi}
+                  getModuleHandler={getModuleHandler}
                   editData={editData}
                   disableEdit={disableEdit}
                 />
@@ -465,21 +466,22 @@ const UserRole = () => {
   )
 }
 
-export default UserRole
+export default ModuleManagement
 
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    roleName: yup.string().required('User Role is required'),
+    mainMenuId: yup.number().required('Main Menu is required'),
+    subMenuName: yup.string().required('Sub-Menu is required'),
+    moduleName: yup.string().required('Module Path is required'),
   }),
 })
 
 const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
-  const { isOpen, onClose, getRolesHandler, editData, disableEdit } = props
-  const [showPassword, setShowPassword] = useState(false)
-  const [roles, setRoles] = useState([])
+  const { isOpen, onClose, getModuleHandler, editData, disableEdit } = props
+  const [module, setModule] = useState([])
   const toast = useToast()
 
   const {
@@ -495,22 +497,37 @@ const DrawerComponent = (props) => {
     defaultValues: {
       formData: {
         id: '',
-        roleName: '',
+        mainMenuId: '',
+        subMenuName: '',
+        moduleName: '',
         addedBy: currentUser?.userName,
-        modifiedBy: '',
       },
     },
   })
+
+  // FETCH MAIN MENU
+  const fetchMainMenu = async () => {
+    try {
+      const res = await request.get('Module/GetAllActiveMainMenu')
+      setModule(res.data)
+    } catch (error) {}
+  }
+
+  useEffect(() => {
+    try {
+      fetchMainMenu()
+    } catch (error) {}
+  }, [])
 
   const submitHandler = async (data) => {
     try {
       if (data.formData.id === '') {
         delete data.formData['id']
         const res = await request
-          .post('Role/AddNewRole', data.formData)
+          .post('Module/AddNewModule', data.formData)
           .then((res) => {
-            ToastComponent('Success', 'New Role created!', 'success', toast)
-            getRolesHandler()
+            ToastComponent('Success', 'New Module created!', 'success', toast)
+            getModuleHandler()
             onClose()
           })
           .catch((err) => {
@@ -519,11 +536,11 @@ const DrawerComponent = (props) => {
           })
       } else {
         const res = await request
-          .put(`Role/UpdateUserInfo`, data.formData)
+          .put(`Module/UpdateModule`, data.formData)
           .then((res) => {
-            ToastComponent('Success', 'Role Updated', 'success', toast)
-            getRolesHandler()
-            onClose(onClose)
+            ToastComponent('Success', 'Module Updated', 'success', toast)
+            getModuleHandler()
+            onClose()
           })
           .catch((error) => {
             ToastComponent(
@@ -543,8 +560,10 @@ const DrawerComponent = (props) => {
         'formData',
         {
           id: editData.id,
-          roleName: editData?.roleName,
-          modifiedBy: currentUser.userName,
+          mainMenuId: editData?.mainMenuId,
+          subMenuName: editData?.subMenuName,
+          moduleName: editData?.moduleName,
+          // modifiedBy: currentUser.userName,
         },
         { shouldValidate: true },
       )
@@ -559,24 +578,51 @@ const DrawerComponent = (props) => {
         <DrawerOverlay />
         <form onSubmit={handleSubmit(submitHandler)}>
           <DrawerContent>
-            <DrawerHeader borderBottomWidth="1px">Role Form</DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px">Module Form</DrawerHeader>
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">
                 <Box>
-                  <FormLabel>User Role:</FormLabel>
+                  <FormLabel>Main Menu:</FormLabel>
+
+                  {module.length > 0 ? (
+                    <Select
+                      {...register('formData.mainMenuId')}
+                      placeholder="Select Main Menu"
+                    >
+                      {module.map((mods) => (
+                        <option key={mods.id} value={mods.id}>
+                          {mods.mainMenu}
+                        </option>
+                      ))}
+                    </Select>
+                  ) : (
+                    'loading'
+                  )}
+                  <Text color="red" fontSize="xs">
+                    {errors.formData?.mainMenuId?.message}
+                  </Text>
+                </Box>
+
+                <Box>
+                  <FormLabel>Sub-Menu Name:</FormLabel>
                   <Input
-                    {...register('formData.roleName')}
-                    placeholder="Please enter User Role"
-                    // onChange={(e) =>
-                    //   setEditData((prevValue) => ({
-                    //     ...prevValue,
-                    //     userName: e.target.value,
-                    //   }))
-                    // }
+                    {...register('formData.subMenuName')}
+                    placeholder="Please enter Sub-Menu name"
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.roleName?.message}
+                    {errors.formData?.subMenuName?.message}
+                  </Text>
+                </Box>
+
+                <Box>
+                  <FormLabel>Menu Path Name:</FormLabel>
+                  <Input
+                    {...register('formData.moduleName')}
+                    placeholder="Please enter Menu Path name"
+                  />
+                  <Text color="red" fontSize="xs">
+                    {errors.formData?.moduleName?.message}
                   </Text>
                 </Box>
               </Stack>
@@ -585,6 +631,7 @@ const DrawerComponent = (props) => {
               <Button variant="outline" mr={3} onClick={onClose}>
                 Cancel
               </Button>
+
               <Button type="submit" colorScheme="blue">
                 Submit
               </Button>

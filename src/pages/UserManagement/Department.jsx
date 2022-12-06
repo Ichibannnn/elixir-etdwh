@@ -39,28 +39,28 @@ import {
   VStack,
   Portal,
   TableContainer,
-} from "@chakra-ui/react";
-import React, { useState } from "react";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+} from '@chakra-ui/react'
+import React, { useState } from 'react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import {
   AiFillDelete,
   AiOutlinePlus,
   AiOutlineUserAdd,
   AiTwotoneEdit,
-} from "react-icons/ai";
-import { RiInboxUnarchiveFill } from "react-icons/ri";
-import { BsBuilding } from "react-icons/bs";
-import { FaSearch } from "react-icons/fa";
-import { VscEye, VscEyeClosed } from "react-icons/vsc";
-import { SlUserFollow } from "react-icons/sl";
-import PageScroll from "../../utils/PageScroll";
-import request from "../../services/ApiClient";
-import { ToastComponent } from "../../components/Toast";
-import Swal from "sweetalert2";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { decodeUser } from "../../services/decode-user";
+} from 'react-icons/ai'
+import { RiInboxUnarchiveFill } from 'react-icons/ri'
+import { BsBuilding } from 'react-icons/bs'
+import { FaSearch } from 'react-icons/fa'
+import { VscEye, VscEyeClosed } from 'react-icons/vsc'
+import { SlUserFollow } from 'react-icons/sl'
+import PageScroll from '../../utils/PageScroll'
+import request from '../../services/ApiClient'
+import { ToastComponent } from '../../components/Toast'
+import Swal from 'sweetalert2'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import { decodeUser } from '../../services/decode-user'
 import {
   Pagination,
   usePagination,
@@ -69,31 +69,31 @@ import {
   PaginationPrevious,
   PaginationContainer,
   PaginationPageGroup,
-} from "@ajna/pagination";
+} from '@ajna/pagination'
 
 const Department = () => {
-  const [department, setDeparment] = useState([]);
-  const [editData, setEditData] = useState([]);
-  const [status, setStatus] = useState(true);
-  const [search, setSearch] = useState("");
-  const toast = useToast();
-  const currentUser = decodeUser();
+  const [department, setDeparment] = useState([])
+  const [editData, setEditData] = useState([])
+  const [status, setStatus] = useState(true)
+  const [search, setSearch] = useState('')
+  const toast = useToast()
+  const currentUser = decodeUser()
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [pageTotal, setPageTotal] = useState(undefined);
-  const [disableEdit, setDisableEdit] = useState(false);
+  const [isLoading, setIsLoading] = useState(true)
+  const [pageTotal, setPageTotal] = useState(undefined)
+  const [disableEdit, setDisableEdit] = useState(false)
 
   const fetchUserApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
-      `User/GetAllDepartmentWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`
-    );
+      `User/GetAllDepartmentWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+    )
 
-    return response.data;
-  };
+    return response.data
+  }
 
   //PAGINATION
-  const outerLimit = 2;
-  const innerLimit = 2;
+  const outerLimit = 2
+  const innerLimit = 2
   const {
     currentPage,
     setCurrentPage,
@@ -108,84 +108,84 @@ const Department = () => {
       inner: innerLimit,
     },
     initialState: { currentPage: 1, pageSize: 5 },
-  });
+  })
 
   //SHOW USER DATA----
   const getUserHandler = () => {
     fetchUserApi(currentPage, pageSize, status, search).then((res) => {
-      setIsLoading(false);
-      setDeparment(res);
-      setPageTotal(res.totalCount);
-    });
-  };
+      setIsLoading(false)
+      setDeparment(res)
+      setPageTotal(res.totalCount)
+    })
+  }
 
   useEffect(() => {
-    getUserHandler();
+    getUserHandler()
 
     return () => {
-      setDeparment([]);
-    };
-  }, [currentPage, pageSize, status, search]);
+      setDeparment([])
+    }
+  }, [currentPage, pageSize, status, search])
 
   const handlePageChange = (nextPage) => {
-    setCurrentPage(nextPage);
-  };
+    setCurrentPage(nextPage)
+  }
 
   const handlePageSizeChange = (e) => {
-    const pageSize = Number(e.target.value);
-    setPageSize(pageSize);
-  };
+    const pageSize = Number(e.target.value)
+    setPageSize(pageSize)
+  }
 
   const statusHandler = (data) => {
-    setStatus(data);
-  };
+    setStatus(data)
+  }
 
   const changeStatusHandler = (id, status) => {
-    let routeLabel;
+    let routeLabel
     if (status) {
-      routeLabel = "InActiveDepartment";
+      routeLabel = 'InActiveDepartment'
     } else {
-      routeLabel = "ActivateDepartment";
+      routeLabel = 'ActivateDepartment'
     }
 
     request
       .put(`/User/${routeLabel}`, { id: id })
       .then((res) => {
-        ToastComponent("Success", "Status updated", "success", toast);
-        getUserHandler();
+        ToastComponent('Success', 'Status updated', 'success', toast)
+        getUserHandler()
       })
       .catch((err) => {
-        console.log(err);
-      });
-    console.log(routeLabel);
-  };
+        console.log(err)
+      })
+    console.log(routeLabel)
+  }
 
   const searchHandler = (inputValue) => {
-    setSearch(inputValue);
-    console.log(inputValue);
-  };
+    setSearch(inputValue)
+    console.log(inputValue)
+  }
 
   //ADD USER HANDLER---
   const addUserHandler = () => {
     setEditData({
-      id: "",
-      departmentCode: "",
-      departmentName: "",
+      id: '',
+      departmentCode: '',
+      departmentName: '',
       addedBy: currentUser.userName,
-      modifiedBy: "",
-    });
-    onOpen();
-    setDisableEdit(false);
-  };
+      modifiedBy: '',
+    })
+    onOpen()
+    setDisableEdit(false)
+  }
 
   //EDIT USER--
   const editUserHandler = (user) => {
-    setDisableEdit(true);
-    setEditData(user);
-    onOpen();
-  };
+    setDisableEdit(true)
+    setEditData(user)
+    onOpen()
+  }
   //FOR DRAWER
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   // console.log(status);
 
@@ -199,17 +199,6 @@ const Department = () => {
       bg="form"
       boxShadow="md"
     >
-      {/* <Flex
-        h="40px"
-        w="full"
-        alignItems="center"
-        p={2}
-        fontSize="15px"
-        fontWeight="bold"
-      >
-        <Text>Department</Text>
-      </Flex> */}
-
       <Flex p={2} w="full">
         <Flex flexDirection="column" gap={1} w="full">
           <Flex justifyContent="space-between" alignItems="center">
@@ -222,11 +211,11 @@ const Department = () => {
                 <Input
                   borderRadius="none"
                   size="sm"
-                  fontSize="xs"
+                  fontSize="12px"
                   type="text"
                   placeholder="Search: Department Name"
                   borderColor="gray.400"
-                  _hover={{ borderColor: "gray.400" }}
+                  _hover={{ borderColor: 'gray.400' }}
                   onChange={(e) => searchHandler(e.target.value)}
                 />
               </InputGroup>
@@ -296,56 +285,61 @@ const Department = () => {
                         <Td fontSize="11px">{dep.dateAdded}</Td>
 
                         <Td>
-                            <HStack>
-                              <Button
-                                bg="none"
-                                onClick={() => editUserHandler(dep)}
-                              >
-                                <AiTwotoneEdit />
-                              </Button>
-                              <Popover>
-                                {({onClose}) => (
-                                  <>
-                                <PopoverTrigger>
-                                  <Button p={0} bg="none">
-                                    <RiInboxUnarchiveFill />
-                                  </Button>
-                                </PopoverTrigger>
-                                <Portal>
-                                <PopoverContent bg="primary" color="#fff">
-                                  <PopoverArrow bg="primary" />
-                                  <PopoverCloseButton />
-                                  <PopoverHeader>Confirmation!</PopoverHeader>
-                                  <PopoverBody>
-                                    <VStack onClick={onClose}>
-                                      {dep.isActive === true ? (
-                                        <Text>
-                                          Are you sure you want to set this
-                                          department inactive?
-                                        </Text>
-                                      ) : (
-                                        <Text>
-                                          Are you sure you want to set this
-                                          department active?
-                                        </Text>
-                                      )}
-                                      <Button
-                                        colorScheme="green"
-                                        size="sm"
-                                        onClick={() => 
-                                           changeStatusHandler(dep.id,dep.isActive)
-                                        }
-                                      >
-                                        Yes
-                                      </Button>
-                                    </VStack>
-                                  </PopoverBody>
-                                </PopoverContent>
-                                </Portal>
+                          <HStack>
+                            <Button
+                              bg="none"
+                              onClick={() => editUserHandler(dep)}
+                            >
+                              <AiTwotoneEdit />
+                            </Button>
+                            <Popover>
+                              {({ onClose }) => (
+                                <>
+                                  <PopoverTrigger>
+                                    <Button p={0} bg="none">
+                                      <RiInboxUnarchiveFill />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <Portal>
+                                    <PopoverContent bg="primary" color="#fff">
+                                      <PopoverArrow bg="primary" />
+                                      <PopoverCloseButton />
+                                      <PopoverHeader>
+                                        Confirmation!
+                                      </PopoverHeader>
+                                      <PopoverBody>
+                                        <VStack onClick={onClose}>
+                                          {dep.isActive === true ? (
+                                            <Text>
+                                              Are you sure you want to set this
+                                              department inactive?
+                                            </Text>
+                                          ) : (
+                                            <Text>
+                                              Are you sure you want to set this
+                                              department active?
+                                            </Text>
+                                          )}
+                                          <Button
+                                            colorScheme="green"
+                                            size="sm"
+                                            onClick={() =>
+                                              changeStatusHandler(
+                                                dep.id,
+                                                dep.isActive,
+                                              )
+                                            }
+                                          >
+                                            Yes
+                                          </Button>
+                                        </VStack>
+                                      </PopoverBody>
+                                    </PopoverContent>
+                                  </Portal>
                                 </>
-                                )}
-                              </Popover>
-                            </HStack>
+                              )}
+                            </Popover>
+                          </HStack>
                         </Td>
                       </Tr>
                     ))}
@@ -358,7 +352,7 @@ const Department = () => {
               <Button
                 size="sm"
                 colorScheme="blue"
-                _hover={{ bg: "blue.400", color: "#fff" }}
+                _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
                 leftIcon={<BsBuilding />}
                 borderRadius="none"
@@ -390,16 +384,16 @@ const Department = () => {
                       bg="primary"
                       color="white"
                       p={1}
-                      _hover={{ bg: "green", color: "white" }}
+                      _hover={{ bg: 'green', color: 'white' }}
                       size="sm"
                     >
-                      {"<<"}
+                      {'<<'}
                     </PaginationPrevious>
                     <PaginationPageGroup ml={1} mr={1}>
                       {pages.map((page) => (
                         <PaginationPage
-                          _hover={{ bg: "green", color: "white" }}
-                          _focus={{ bg: "green" }}
+                          _hover={{ bg: 'green', color: 'white' }}
+                          _focus={{ bg: 'green' }}
                           p={3}
                           bg="primary"
                           color="white"
@@ -414,11 +408,11 @@ const Department = () => {
                         bg="primary"
                         color="white"
                         p={1}
-                        _hover={{ bg: "green", color: "white" }}
+                        _hover={{ bg: 'green', color: 'white' }}
                         size="sm"
                         mb={2}
                       >
-                        {">>"}
+                        {'>>'}
                       </PaginationNext>
                       <Select
                         onChange={handlePageSizeChange}
@@ -440,27 +434,25 @@ const Department = () => {
         </Flex>
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default Department;
+export default Department
 
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    departmentCode: yup.string().required("Department Code is required"),
-    departmentName: yup.string().required("Department Name is required"),
+    departmentCode: yup.string().required('Department Code is required'),
+    departmentName: yup.string().required('Department Name is required'),
   }),
-});
+})
 
-const currentUser = decodeUser();
+const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
-  const { isOpen, onClose, getUserHandler, editData, disableEdit } = props;
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [roles, setRoles] = useState([]);
-  const toast = useToast();
+  const { isOpen, onClose, getUserHandler, editData, disableEdit } = props
+  const [roles, setRoles] = useState([])
+  const toast = useToast()
 
   const {
     register,
@@ -471,107 +463,81 @@ const DrawerComponent = (props) => {
     reset,
   } = useForm({
     resolver: yupResolver(schema),
-    mode: "onChange",
+    mode: 'onChange',
     defaultValues: {
       formData: {
-        id: "",
-        departmentCode: "",
-        departmentName: "",
-        password: "",
+        id: '',
+        departmentCode: '',
+        departmentName: '',
+        password: '',
         addedBy: currentUser?.userName,
-        modifiedBy: "",
+        modifiedBy: '',
       },
     },
-  });
-
-  // const fetchRoles = async () => {
-  //   try {
-  //     const res = await request.get("Role/GetAllActiveRoles");
-  //     setRoles(res.data);
-  //   } catch (error) {}
-  // };
-
-  // useEffect(() => {
-  //   try {
-  //     fetchRoles();
-  //   } catch (error) {}
-  // }, []);
-
-  // const fetchDepartment = async () => {
-  //   try {
-  //     const res = await request.get("User/GetAllActiveDepartment");
-  //     setDepartment(res.data);
-  //   } catch (error) {}
-  // };
-
-  // useEffect(() => {
-  //   try {
-  //     fetchDepartment();
-  //   } catch (error) {}
-  // }, []);
+  })
 
   const submitHandler = async (data) => {
     try {
-      if (data.formData.id === "") {
-        delete data.formData["id"];
+      if (data.formData.id === '') {
+        delete data.formData['id']
         const res = await request
-          .post("User/AddNewDepartment", data.formData)
+          .post('User/AddNewDepartment', data.formData)
           .then((res) => {
             ToastComponent(
-              "Success",
-              "New department created!",
-              "success",
-              toast
-            );
-            getUserHandler();
-            onClose();
+              'Success',
+              'New department created!',
+              'success',
+              toast,
+            )
+            getUserHandler()
+            onClose()
           })
           .catch((err) => {
-            ToastComponent("Error", err.response.data, "error", toast);
+            ToastComponent('Error', err.response.data, 'error', toast)
             // data.formData.id = "";
-          });
+          })
       } else {
         const res = await request
           .put(`User/UpdateDepartment`, data.formData)
           .then((res) => {
-            ToastComponent("Success", "Department Updated", "success", toast);
-            getUserHandler();
-            onClose(onClose);
+            ToastComponent('Success', 'Department Updated', 'success', toast)
+            getUserHandler()
+            onClose(onClose)
           })
           .catch((error) => {
             ToastComponent(
-              "Update Failed",
+              'Update Failed',
               error.response.data,
-              "warning",
-              toast
-            );
-          });
+              'warning',
+              toast,
+            )
+          })
       }
     } catch (err) {}
-  };
+  }
 
-  console.log(editData);
+  console.log(editData)
 
   useEffect(() => {
     if (editData.id) {
       setValue(
-        "formData",
+        'formData',
         {
           id: editData.id,
           departmentCode: editData?.departmentCode,
           departmentName: editData?.departmentName,
           modifiedBy: currentUser.userName,
         },
-        { shouldValidate: true }
-      );
+        { shouldValidate: true },
+      )
     }
 
     // return () => {
     //   ;
     // };
-  }, [editData]);
+  }, [editData])
 
-  console.log(watch("formData.id"));
+  console.log(watch('formData.id'))
 
   return (
     <>
@@ -586,9 +552,9 @@ const DrawerComponent = (props) => {
                 <Box>
                   <FormLabel>Department Code:</FormLabel>
                   <Input
-                    {...register("formData.departmentCode")}
+                    {...register('formData.departmentCode')}
                     placeholder="Please enter Department Code"
-                    bgColor={disableEdit ? "gray" : "none"}
+                    bgColor={disableEdit ? 'gray' : 'none'}
                     disabled={disableEdit}
                     readOnly={disableEdit}
                     // onChange={(e) =>
@@ -606,7 +572,7 @@ const DrawerComponent = (props) => {
                 <Box>
                   <FormLabel>Department Name:</FormLabel>
                   <Input
-                    {...register("formData.departmentName")}
+                    {...register('formData.departmentName')}
                     placeholder="Please enter Department Name"
                     // onChange={(e) =>
                     //   setEditData((prevValue) => ({
@@ -633,5 +599,5 @@ const DrawerComponent = (props) => {
         </form>
       </Drawer>
     </>
-  );
-};
+  )
+}

@@ -40,7 +40,6 @@ const Header = ({ setSidebarHandler }) => {
         <GiHamburgerMenu
           color="#D1D2D5"
           w="40%"
-          alignItems="center"
           onClick={() => setSidebarHandler((x) => !x)}
         />
       </HStack>
