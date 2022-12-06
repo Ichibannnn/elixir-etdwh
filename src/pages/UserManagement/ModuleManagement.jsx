@@ -188,13 +188,8 @@ const ModuleManagement = () => {
     console.log(module.mainMenuId)
   }
 
-  //FOR DRAWER (Drawer / Drawer Tagging)
+  //FOR DRAWER
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const {
-    isOpen: isDrawerTaggingOpen,
-    onOpen: openDrawerTagging,
-    onClose: closeDrawerTagging,
-  } = useDisclosure()
 
   return (
     <Flex

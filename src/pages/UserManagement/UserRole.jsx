@@ -69,6 +69,7 @@ import {
   PaginationContainer,
   PaginationPageGroup,
 } from '@ajna/pagination'
+import DrawerTaggingComponent from './DrawerTaggingComponent'
 
 const UserRole = () => {
   const [roles, setRoles] = useState([])
@@ -187,8 +188,20 @@ const UserRole = () => {
     console.log(role.roleName)
   }
 
-  //FOR DRAWER
+  //FOR DRAWER (Drawer / Drawer Tagging)
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const {
+    isOpen: isDrawerTaggingOpen,
+    onOpen: openDrawerTagging,
+    onClose: closeDrawerTagging,
+  } = useDisclosure()
+
+  //MODULE TAGGING
+  const moduleTaggingHandler = (id, roleName) => {
+    openDrawerTagging()
+    // setSelectedId(id)
+    // setSelectedRolename(roleName)
+  }
 
   return (
     <Flex
@@ -200,17 +213,6 @@ const UserRole = () => {
       bg="form"
       boxShadow="md"
     >
-      {/* <Flex
-        h="40px"
-        w="full"
-        alignItems="center"
-        p={2}
-        fontSize="15px"
-        fontWeight="bold"
-      >
-        <Text>User Roles:</Text>
-      </Flex> */}
-
       <Flex p={2} w="full">
         <Flex flexDirection="column" gap={1} w="full">
           <Flex justifyContent="space-between" alignItems="center">
@@ -363,7 +365,7 @@ const UserRole = () => {
                         <Td>
                           <Button
                             bg="none"
-                            // onClick={() => editRolesHandler(rol)}
+                            onClick={() => moduleTaggingHandler()}
                           >
                             <FaUserTag />
                           </Button>
@@ -394,6 +396,18 @@ const UserRole = () => {
                   isOpen={isOpen}
                   onClose={onClose}
                   fetchRolesApi={fetchRolesApi}
+                  getRolesHandler={getRolesHandler}
+                  editData={editData}
+                  disableEdit={disableEdit}
+                />
+              )}
+
+              {isDrawerTaggingOpen && (
+                <DrawerTaggingComponent
+                  isOpen={isDrawerTaggingOpen}
+                  onClose={closeDrawerTagging}
+                  onOpen={openDrawerTagging}
+                  // fetchRolesApi={fetchRolesApi}
                   getRolesHandler={getRolesHandler}
                   editData={editData}
                   disableEdit={disableEdit}
