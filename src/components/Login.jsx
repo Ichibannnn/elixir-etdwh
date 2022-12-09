@@ -136,7 +136,6 @@ const Login = () => {
                   setPassword(event.target.value)
                 }}
               />
-              c1
               <Button
                 borderRadius="none"
                 fontSize="13px"

@@ -51,6 +51,7 @@ import {
 } from 'react-icons/ai'
 import { GiChoice } from 'react-icons/gi'
 import { FaSearch, FaUsers, FaUserTag } from 'react-icons/fa'
+import { VscEye, VscEyeClosed } from 'react-icons/vsc'
 import { SlUserFollow } from 'react-icons/sl'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
@@ -69,53 +70,27 @@ import {
   PaginationPageGroup,
 } from '@ajna/pagination'
 
-const ModuleManagement = () => {
-  const [module, setModule] = useState([])
+const MenuManagement = () => {
+  const [mainMenu, setMainMenu] = useState([])
   const [editData, setEditData] = useState([])
   const [status, setStatus] = useState(true)
-  const [search, setSearch] = useState('')
   const toast = useToast()
   const currentUser = decodeUser()
 
   const [isLoading, setIsLoading] = useState(true)
-  const [pageTotal, setPageTotal] = useState(undefined)
   const [disableEdit, setDisableEdit] = useState(false)
 
-  // FETCH API MODULES:
-  const fetchModuleApi = async (pageNumber, pageSize, status, search) => {
-    const response = await request.get(
-      `Module/GetAllModulesWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
-    )
+  console.log(status)
 
-    return response.data
-  }
-
-  //PAGINATION
-  const outerLimit = 2
-  const innerLimit = 2
-  const {
-    currentPage,
-    setCurrentPage,
-    pagesCount,
-    pages,
-    setPageSize,
-    pageSize,
-  } = usePagination({
-    total: pageTotal,
-    limits: {
-      outer: outerLimit,
-      inner: innerLimit,
-    },
-    initialState: { currentPage: 1, pageSize: 5 },
-  })
-
-  const handlePageChange = (nextPage) => {
-    setCurrentPage(nextPage)
-  }
-
-  const handlePageSizeChange = (e) => {
-    const pageSize = Number(e.target.value)
-    setPageSize(pageSize)
+  // FETCH API ROLES:
+  const fetchMainMenuApi = async (status) => {
+    if (status === true || status === 'true') {
+      const response = await request.get(`Module/GetAllActiveMainMenu`)
+      return response.data
+    } else if (status === false || status === 'false') {
+      const response = await request.get(`Module/GetAllInActiveMainMenu`)
+      return response.data
+    }
   }
 
   //STATUS
@@ -126,16 +101,16 @@ const ModuleManagement = () => {
   const changeStatusHandler = (id, isActive) => {
     let routeLabel
     if (isActive) {
-      routeLabel = 'InActiveModule'
+      routeLabel = 'InActiveMenu'
     } else {
-      routeLabel = 'ActivateModule'
+      routeLabel = 'ActivateMainMenu'
     }
 
     request
       .put(`/Module/${routeLabel}`, { id: id })
       .then((res) => {
         ToastComponent('Success', 'Status updated', 'success', toast)
-        getModuleHandler()
+        getMainMenuHandler()
       })
       .catch((err) => {
         console.log(err)
@@ -143,36 +118,28 @@ const ModuleManagement = () => {
     console.log(routeLabel)
   }
 
-  //SHOW MODULE DATA----
-  const getModuleHandler = () => {
-    fetchModuleApi(currentPage, pageSize, status, search).then((res) => {
+  //SHOW MAIN MENU DATA----
+  const getMainMenuHandler = () => {
+    fetchMainMenuApi(status).then((res) => {
       setIsLoading(false)
-      setModule(res)
-      setPageTotal(res.totalCount)
+      setMainMenu(res)
     })
   }
 
   useEffect(() => {
-    getModuleHandler()
+    getMainMenuHandler()
 
     return () => {
-      setModule([])
+      setMainMenu([])
     }
-  }, [currentPage, pageSize, status, search])
+  }, [status])
 
-  // SEARCH
-  const searchHandler = (inputValue) => {
-    setSearch(inputValue)
-    console.log(inputValue)
-  }
-
-  //ADD MODULE HANDLER---
-  const addModuleHandler = () => {
+  //ADD MAIN MENU HANDLER---
+  const addMainMenuHandler = () => {
     setEditData({
       id: '',
-      mainMenuId: '',
-      subMenuName: '',
       moduleName: '',
+      menuPath: '',
       addedBy: currentUser.userName,
       modifiedBy: '',
     })
@@ -180,15 +147,15 @@ const ModuleManagement = () => {
     setDisableEdit(false)
   }
 
-  //EDIT MODULE--
-  const editModuleHandler = (module) => {
+  //EDIT ROLE--
+  const editMainMenuHandler = (mod) => {
     setDisableEdit(true)
-    setEditData(module)
+    setEditData(mod)
     onOpen()
-    console.log(module.mainMenuId)
+    // console.log(mod.mainMenu)
   }
 
-  //FOR DRAWER
+  //FOR DRAWER (Drawer / Drawer Tagging)
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (
@@ -201,22 +168,11 @@ const ModuleManagement = () => {
       bg="form"
       boxShadow="md"
     >
-      {/* <Flex
-        h="40px"
-        w="full"
-        alignItems="center"
-        p={2}
-        fontSize="15px"
-        fontWeight="bold"
-      >
-        <Text>User Roles:</Text>
-      </Flex> */}
-
       <Flex p={2} w="full">
         <Flex flexDirection="column" gap={1} w="full">
           <Flex justifyContent="space-between" alignItems="center">
             <HStack>
-              <InputGroup size="sm">
+              {/* <InputGroup size="sm">
                 <InputLeftElement
                   pointerEvents="none"
                   children={<FaSearch color="black" />}
@@ -225,12 +181,12 @@ const ModuleManagement = () => {
                   borderRadius="none"
                   size="sm"
                   type="text"
-                  placeholder="Search: Sub-Menu Name"
+                  placeholder="Search: User Role"
                   borderColor="gray.400"
                   _hover={{ borderColor: 'gray.400' }}
                   onChange={(e) => searchHandler(e.target.value)}
                 />
-              </InputGroup>
+              </InputGroup> */}
             </HStack>
 
             <HStack flexDirection="row">
@@ -271,16 +227,13 @@ const ModuleManagement = () => {
                         ID
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Menu Name
-                      </Th>
-                      <Th color="#D6D6D6" fontSize="10px">
-                        Sub-Menu Name
-                      </Th>
-                      <Th color="#D6D6D6" fontSize="10px">
-                        Date Added
+                        Main Menu
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Added By
+                      </Th>
+                      <Th color="#D6D6D6" fontSize="10px">
+                        Date Added
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Action
@@ -288,20 +241,19 @@ const ModuleManagement = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {module.module?.map((mod, i) => (
+                    {mainMenu?.map((mod, i) => (
                       <Tr key={i}>
                         <Td fontSize="11px">{mod.id}</Td>
                         <Td fontSize="11px">{mod.mainMenu}</Td>
-                        <Td fontSize="11px">{mod.subMenuName}</Td>
-                        <Td fontSize="11px">{mod.dateAdded}</Td>
                         <Td fontSize="11px">{mod.addedBy}</Td>
+                        <Td fontSize="11px">{mod.dateAdded}</Td>
 
                         <Td>
                           <Flex>
                             <HStack>
                               <Button
                                 bg="none"
-                                onClick={() => editModuleHandler(mod)}
+                                onClick={() => editMainMenuHandler(mod)}
                               >
                                 <AiTwotoneEdit />
                               </Button>
@@ -356,14 +308,6 @@ const ModuleManagement = () => {
                             </HStack>
                           </Flex>
                         </Td>
-                        {/* <Td>
-                          <Button
-                            bg="none"
-                            // onClick={() => editRolesHandler(rol)}
-                          >
-                            <FaUserTag />
-                          </Button>
-                        </Td> */}
                       </Tr>
                     ))}
                   </Tbody>
@@ -377,11 +321,11 @@ const ModuleManagement = () => {
                 colorScheme="blue"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                // leftIcon={<IoDocumentsSharp />}
+                leftIcon={<FaUsers />}
                 borderRadius="none"
-                onClick={addModuleHandler}
+                onClick={addMainMenuHandler}
               >
-                New Module
+                New Main Menu
               </Button>
 
               {/* PROPS */}
@@ -389,15 +333,15 @@ const ModuleManagement = () => {
                 <DrawerComponent
                   isOpen={isOpen}
                   onClose={onClose}
-                  fetchModuleApi={fetchModuleApi}
-                  getModuleHandler={getModuleHandler}
+                  fetchMainMenuApi={fetchMainMenuApi}
+                  getMainMenuHandler={getMainMenuHandler}
                   editData={editData}
                   disableEdit={disableEdit}
                 />
               )}
 
               <Stack>
-                <Pagination
+                {/* <Pagination
                   pagesCount={pagesCount}
                   currentPage={currentPage}
                   onPageChange={handlePageChange}
@@ -451,7 +395,7 @@ const ModuleManagement = () => {
                       </Select>
                     </HStack>
                   </PaginationContainer>
-                </Pagination>
+                </Pagination> */}
               </Stack>
             </Flex>
           </Flex>
@@ -461,22 +405,20 @@ const ModuleManagement = () => {
   )
 }
 
-export default ModuleManagement
+export default MenuManagement
 
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    mainMenuId: yup.number().required('Main Menu is required'),
-    subMenuName: yup.string().required('Sub-Menu is required'),
-    moduleName: yup.string().required('Module Path is required'),
+    moduleName: yup.string().required('Main Menu is required'),
+    menuPath: yup.string().required('Main Menu Path is required'),
   }),
 })
 
 const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
-  const { isOpen, onClose, getModuleHandler, editData, disableEdit } = props
-  const [module, setModule] = useState([])
+  const { isOpen, onClose, getMainMenuHandler, editData, disableEdit } = props
   const toast = useToast()
 
   const {
@@ -492,37 +434,28 @@ const DrawerComponent = (props) => {
     defaultValues: {
       formData: {
         id: '',
-        mainMenuId: '',
-        subMenuName: '',
         moduleName: '',
+        menuPath: '',
         addedBy: currentUser?.userName,
+        modifiedBy: '',
       },
     },
   })
-
-  // FETCH MAIN MENU
-  const fetchMainMenu = async () => {
-    try {
-      const res = await request.get('Module/GetAllActiveMainMenu')
-      setModule(res.data)
-    } catch (error) {}
-  }
-
-  useEffect(() => {
-    try {
-      fetchMainMenu()
-    } catch (error) {}
-  }, [])
 
   const submitHandler = async (data) => {
     try {
       if (data.formData.id === '') {
         delete data.formData['id']
         const res = await request
-          .post('Module/AddNewModule', data.formData)
+          .post('Module/AddNewMainMenu', data.formData)
           .then((res) => {
-            ToastComponent('Success', 'New Module created!', 'success', toast)
-            getModuleHandler()
+            ToastComponent(
+              'Success',
+              'New Main Menu created!',
+              'success',
+              toast,
+            )
+            getMainMenuHandler()
             onClose()
           })
           .catch((err) => {
@@ -531,11 +464,11 @@ const DrawerComponent = (props) => {
           })
       } else {
         const res = await request
-          .put(`Module/UpdateModule`, data.formData)
+          .put(`Module/UpdateMenu`, data.formData)
           .then((res) => {
-            ToastComponent('Success', 'Module Updated', 'success', toast)
-            getModuleHandler()
-            onClose()
+            ToastComponent('Success', 'Main Menu Updated', 'success', toast)
+            getMainMenuHandler()
+            onClose(onClose)
           })
           .catch((error) => {
             ToastComponent(
@@ -555,17 +488,16 @@ const DrawerComponent = (props) => {
         'formData',
         {
           id: editData.id,
-          mainMenuId: editData?.mainMenuId,
-          subMenuName: editData?.subMenuName,
-          moduleName: editData?.moduleName,
-          // modifiedBy: currentUser.userName,
+          moduleName: editData?.mainMenu,
+          menuPath: editData?.menuPath,
+          modifiedBy: currentUser.userName,
         },
         { shouldValidate: true },
       )
     }
   }, [editData])
 
-  console.log(watch('formData.id'))
+  console.log(watch('formData'))
 
   return (
     <>
@@ -573,51 +505,28 @@ const DrawerComponent = (props) => {
         <DrawerOverlay />
         <form onSubmit={handleSubmit(submitHandler)}>
           <DrawerContent>
-            <DrawerHeader borderBottomWidth="1px">Module Form</DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px">Main Menu Form</DrawerHeader>
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">
                 <Box>
                   <FormLabel>Main Menu:</FormLabel>
-
-                  {module.length > 0 ? (
-                    <Select
-                      {...register('formData.mainMenuId')}
-                      placeholder="Select Main Menu"
-                    >
-                      {module.map((mods) => (
-                        <option key={mods.id} value={mods.id}>
-                          {mods.mainMenu}
-                        </option>
-                      ))}
-                    </Select>
-                  ) : (
-                    'loading'
-                  )}
-                  <Text color="red" fontSize="xs">
-                    {errors.formData?.mainMenuId?.message}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <FormLabel>Sub-Menu Name:</FormLabel>
-                  <Input
-                    {...register('formData.subMenuName')}
-                    placeholder="Please enter Sub-Menu name"
-                  />
-                  <Text color="red" fontSize="xs">
-                    {errors.formData?.subMenuName?.message}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <FormLabel>Menu Path Name:</FormLabel>
                   <Input
                     {...register('formData.moduleName')}
-                    placeholder="Please enter Menu Path name"
+                    placeholder="Please enter Main Menu name"
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.moduleName?.message}
+                  </Text>
+                </Box>
+                <Box>
+                  <FormLabel>Main Menu Path:</FormLabel>
+                  <Input
+                    {...register('formData.menuPath')}
+                    placeholder="Please enter Main Menu name"
+                  />
+                  <Text color="red" fontSize="xs">
+                    {errors.formData?.menuPath?.message}
                   </Text>
                 </Box>
               </Stack>
@@ -626,7 +535,6 @@ const DrawerComponent = (props) => {
               <Button variant="outline" mr={3} onClick={onClose}>
                 Cancel
               </Button>
-
               <Button type="submit" colorScheme="blue">
                 Submit
               </Button>

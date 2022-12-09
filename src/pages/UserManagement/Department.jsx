@@ -49,7 +49,7 @@ import {
   AiOutlineUserAdd,
   AiTwotoneEdit,
 } from 'react-icons/ai'
-import { RiInboxUnarchiveFill } from 'react-icons/ri'
+import { GiChoice } from 'react-icons/gi'
 import { BsBuilding } from 'react-icons/bs'
 import { FaSearch } from 'react-icons/fa'
 import { VscEye, VscEyeClosed } from 'react-icons/vsc'
@@ -297,7 +297,7 @@ const Department = () => {
                                 <>
                                   <PopoverTrigger>
                                     <Button p={0} bg="none">
-                                      <RiInboxUnarchiveFill />
+                                      <GiChoice />
                                     </Button>
                                   </PopoverTrigger>
                                   <Portal>

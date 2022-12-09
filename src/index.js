@@ -16,6 +16,19 @@ const theme = extendTheme({
       fontColor: "#3F444E",
       buttonColor: "#0987A0"
     },
+    components: {
+      Drawer:{
+        variant: {
+          first: {
+            second: {
+              dialog: {
+                maxW:"500px",
+              }
+            }
+          }
+        }
+      }
+    }
   });
 
 

@@ -52,7 +52,7 @@ import {
 import { RiInboxUnarchiveFill } from 'react-icons/ri'
 import { FaSearch, FaUsers, FaUserTag } from 'react-icons/fa'
 import { VscEye, VscEyeClosed } from 'react-icons/vsc'
-import { SlUserFollow } from 'react-icons/sl'
+import { GiChoice } from 'react-icons/gi'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
@@ -197,7 +197,12 @@ const UserRole = () => {
   } = useDisclosure()
 
   //MODULE TAGGING
+  const [taggingParameter, setTaggingParameter] = useState({
+    roleId: '',
+    roleName: '',
+  })
   const moduleTaggingHandler = (id, roleName) => {
+    setTaggingParameter({ roleId: id, roleName: roleName })
     openDrawerTagging()
     // setSelectedId(id)
     // setSelectedRolename(roleName)
@@ -317,7 +322,7 @@ const UserRole = () => {
                                   <>
                                     <PopoverTrigger>
                                       <Button p={0} bg="none">
-                                        <RiInboxUnarchiveFill />
+                                        <GiChoice />
                                       </Button>
                                     </PopoverTrigger>
                                     <Portal>
@@ -365,7 +370,9 @@ const UserRole = () => {
                         <Td>
                           <Button
                             bg="none"
-                            onClick={() => moduleTaggingHandler()}
+                            onClick={() =>
+                              moduleTaggingHandler(rol.id, rol.roleName)
+                            }
                           >
                             <FaUserTag />
                           </Button>
@@ -407,6 +414,7 @@ const UserRole = () => {
                   isOpen={isDrawerTaggingOpen}
                   onClose={closeDrawerTagging}
                   onOpen={openDrawerTagging}
+                  taggingData={taggingParameter}
                   // fetchRolesApi={fetchRolesApi}
                   getRolesHandler={getRolesHandler}
                   editData={editData}
@@ -565,7 +573,7 @@ const DrawerComponent = (props) => {
     }
   }, [editData])
 
-  console.log(watch('formData.id'))
+  console.log(watch('formData'))
 
   return (
     <>

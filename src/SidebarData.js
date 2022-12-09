@@ -46,6 +46,11 @@ export const sidebarData = [
                 id: 13,
                 subname: 'Module Management',
                 path: '/user/module-management',
+            },
+            {
+                id: 14,
+                subname: 'Menu Management',
+                path: '/user/menu-management',
             }
         ]
     },

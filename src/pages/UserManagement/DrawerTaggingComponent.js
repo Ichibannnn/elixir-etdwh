@@ -16,13 +16,28 @@ import {
     Tr,
     Td,
     Button,
+    Popover,
+    PopoverTrigger,
+    Portal,
+    PopoverContent,
+    PopoverArrow,
+    PopoverCloseButton,
+    PopoverHeader,
+    PopoverBody,
+    useToast,
   } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
 import request from '../../services/ApiClient'
+import { BsBookmarkDashFill, BsBookmarkPlusFill, BsFillBookmarkDashFill } from 'react-icons/bs'
+import { ToastComponent } from '../../components/Toast'
 
-const DrawerTaggingComponent = ({isOpen, onClose}) => {
+const DrawerTaggingComponent = ({isOpen, onClose, taggingData, onOpen}) => {
   const [mainMenu, setMainMenu ] = useState([])
-  const [moduleStatus, setModuleStatus] = useState("")
+  const [moduleId, setModuleId] = useState("")
+  const [untagModules, setUntagModules] = useState([])
+  const [tagModules, setTagModules] = useState([])
+
+  const toast = useToast()
 
   // FETCH MAIN MENU
   const fetchMainMenuApi = async () => {
@@ -41,25 +56,109 @@ const DrawerTaggingComponent = ({isOpen, onClose}) => {
     getMainMenuHandler()
   }, [])
 
+  console.log(tagModules)
+
   const moduleStatusHandler = (data) => {
     if (data) {
-      setMainMenu(data)
+      setModuleId(data)
     }
 
   }
+
+  //FETCH UNTAGGED MODULES
+  const fetchUntaggedApi = async (moduleId) => {
+    const roleId = taggingData?.roleId
+    const res = await request.get(
+      `Role/GetUntagModuleByRoleId/${roleId}/${moduleId}`
+    )
+    return res.data
+  }
+
+  //GET/SHOW UNTAGGED MODULES
+  const getUntaggedModule = () => {
+    fetchUntaggedApi(moduleId).then(res => {
+      setUntagModules(res)
+    })
+  }
+
+  useEffect(() => {
+    if (moduleId !== '') {
+      getUntaggedModule()
+    }
+    
+  }, [moduleId])
+
+  console.log(untagModules)
   
+//FETCH TAGGED MODULES
+  const fetchTaggedApi = async (moduleId) => {
+    const roleId = taggingData?.roleId
+    const res = await request.get(
+      `Role/GetRoleModulebyId/${roleId}/${moduleId}`
+    )
+    return res.data
+  }
+
+  //GET/SHOW TAGGED MODULES
+  const getTaggedModule = () => {
+    fetchTaggedApi(moduleId).then(res => {
+      setTagModules(res)
+    })
+  }
+
+  useEffect(() => {
+    if (moduleId !== '') {
+      getTaggedModule()
+    }
+    
+  }, [moduleId])
+
+  const untagHandler = (id) => {
+    const roleId = taggingData?.roleId
+    request
+      .put(`Role/UntagModule`, [{ roleId, moduleId: id }])
+      .then((res) => {
+        ToastComponent('Success', 'Module Untagged', 'success', toast)
+        getUntaggedModule()
+        getTaggedModule()
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+      onOpen();
+  }
+
+  const tagHandler = (roleId, moduleId) => {
+    request
+      .put(`Role/TagModuleinRole`, [{ roleId, moduleId }])
+      .then((res) => {
+        ToastComponent('Success', 'Module Tagged', 'success', toast)
+        getTaggedModule()
+        getUntaggedModule()
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+      onOpen();
+  }
+
+  const sample = () => {
+    console.log("Popover")
+  }
 
   return (
     <>
     <Flex>
-    <Drawer isOpen={isOpen} placement="top" size="full" onClose={onClose}>
+    <Drawer size="xl" isOpen={isOpen} placement="right" onClose={onClose}>
       <DrawerOverlay />
       
       <DrawerContent p={7} > 
       <DrawerCloseButton />
       <DrawerHeader>
         Module Tagging
+      <Text>{taggingData?.roleId} {taggingData?.roleName}</Text>
       </DrawerHeader>
+      
 
       <DrawerBody>
         <Flex w="25%" alignContent="flex-end">
@@ -86,8 +185,8 @@ const DrawerTaggingComponent = ({isOpen, onClose}) => {
               </VStack>
             </Flex>
 
-            <Flex>
-              <Table size="sm">
+            <Flex w="98%">
+              <Table size="sm" variant="striped">
                 <Thead>
                   <Tr bg="primary">
                     <Td color="white">Id</Td>
@@ -97,24 +196,51 @@ const DrawerTaggingComponent = ({isOpen, onClose}) => {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  <Tr>
-                    <Td>Tag Main Menu 1</Td>
-                    <Td>TTag Main Menu 1</Td>
-                    <Td>Tag Main Menu 1</Td>
-                    <Td>Tag Main Menu 1</Td>
-                  </Tr>
-                  <Tr>
-                    <Td>Tag Main Menu 2</Td>
-                    <Td>Tag Main Menu 2</Td>
-                    <Td>Tag Main Menu 2</Td>
-                    <Td>Tag Main Menu 2</Td>
-                  </Tr>
-                  <Tr>
-                    <Td>Tag Main Menu 3</Td>
-                    <Td>Tag Main Menu 3</Td>
-                    <Td>Tag Main Menu 3</Td>
-                    <Td>Tag Main Menu 3</Td>
-                  </Tr>
+                {tagModules?.map((tag, id) => (
+                    <Tr key={id}>
+                      <Td p={4}>{tag.id}</Td>
+                      <Td p={4}>{tag.mainMenu}</Td>
+                      <Td p={4}>{tag.subMenu}</Td>
+                      <Td p={1}>
+                      <Popover>
+                        {({ onClose }) => (
+                          <>
+                          <PopoverTrigger>
+                            <Button p={0} bg="none">
+                              <BsBookmarkDashFill fontSize="25px" onClick={sample} />
+                            </Button>
+                          </PopoverTrigger>
+                            <PopoverContent bg="primary" color="#fff">
+                              <PopoverArrow bg="primary" />
+                              <PopoverCloseButton />
+                              <PopoverHeader>
+                                Confirmation!
+                              </PopoverHeader>
+                              <PopoverBody>
+                                <VStack onClick={onClose}>
+                                  <Text mb={2}>
+                                    Are you sure you want to untag this
+                                    module?
+                                  </Text>
+                                  <Flex justifyContent="right">
+                                    <Button
+                                      p={4}
+                                      colorScheme="green"
+                                      size="sm"
+                                      onClick={() => untagHandler(tag.id)}
+                                    >
+                                      Yes
+                                    </Button>
+                                  </Flex>
+                                </VStack>
+                              </PopoverBody>
+                            </PopoverContent>
+                            </>
+                          )}
+                        </Popover>
+                      </Td>
+                    </Tr>
+                  ))}
                 </Tbody>
               </Table>
             </Flex>
@@ -124,41 +250,68 @@ const DrawerTaggingComponent = ({isOpen, onClose}) => {
           <VStack w="50%" mt={4}>
             <Flex>
               <VStack>
-                <Text>
+                <Text fontWeight="semibold">
                   LIST OF UNTAGGED MODULES
                 </Text>
               </VStack>
             </Flex>
 
-            <Flex>
-              <Table size="sm">
+            <Flex w="98%">
+              <Table size="sm" variant="striped">
                 <Thead>
-                  <Tr bg="primary" fontWeight="semibold">
+                  <Tr bg="primary">
                     <Td color="white">Id</Td>
                     <Td color="white">Main Menu</Td>
                     <Td color="white">Sub-Menu</Td>
-                    <Td color="white">Untag</Td>
+                    <Td color="white">Tag</Td>
                   </Tr>
                 </Thead>
                 <Tbody>
-                  <Tr>
-                    <Td>Untag Main Menu 1</Td>
-                    <Td>Untag Main Menu 1</Td>
-                    <Td>Untag Main Menu 1</Td>
-                    <Td>Untag Main Menu 1</Td>
-                  </Tr>
-                  <Tr>
-                    <Td>Untag Main Menu 2</Td>
-                    <Td>Untag Main Menu 2</Td>
-                    <Td>Untag Main Menu 2</Td>
-                    <Td>Untag Main Menu 2</Td>
-                  </Tr>
-                  <Tr>
-                    <Td>Untag Main Menu 3</Td>
-                    <Td>Untag Main Menu 3</Td>
-                    <Td>Untag Main Menu 3</Td>
-                    <Td>Untag Main Menu 3</Td>
-                  </Tr>
+                  {untagModules?.map((untag) => (
+                    <Tr key={untag.moduleId}>
+                      <Td p={4}>{untag.moduleId}</Td>
+                      <Td p={4}>{untag.mainMenu}</Td>
+                      <Td p={4}>{untag.subMenu}</Td>                    
+                      <Td p={1}>
+                        <Popover>
+                        {({ onClose }) => (
+                          <>
+                          <PopoverTrigger>
+                            <Button p={0} bg="none">
+                              <BsBookmarkPlusFill fontSize="25px" onClick={sample} />
+                            </Button>
+                          </PopoverTrigger>
+                            <PopoverContent bg="primary" color="#fff">
+                              <PopoverArrow bg="primary" />
+                              <PopoverCloseButton />
+                              <PopoverHeader>
+                                Confirmation!
+                              </PopoverHeader>
+                              <PopoverBody>
+                                <VStack onClick={onClose}>
+                                  <Text mb={2}>
+                                    Are you sure you want to tag this
+                                    module?
+                                  </Text>
+                                  <Flex justifyContent="right">
+                                    <Button
+                                      p={4}
+                                      colorScheme="green"
+                                      size="sm"
+                                      onClick={() => tagHandler(untag.roleId, untag.moduleId)}
+                                    >
+                                      Yes
+                                    </Button>
+                                  </Flex>
+                                </VStack>
+                              </PopoverBody>
+                            </PopoverContent>
+                            </>
+                          )}
+                        </Popover>
+                      </Td>
+                    </Tr>
+                  ))}
                 </Tbody>
               </Table>
             </Flex>
@@ -167,7 +320,7 @@ const DrawerTaggingComponent = ({isOpen, onClose}) => {
       </DrawerBody>
 
       <DrawerFooter>
-        <Button colorScheme="red" variant="outline" onClick={onClose}>
+        <Button colorScheme="gray" onClick={onClose}>
           Close
         </Button>
       </DrawerFooter>
