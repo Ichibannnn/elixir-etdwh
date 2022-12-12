@@ -32,22 +32,15 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverBody,
-  PopoverFooter,
   PopoverArrow,
   PopoverCloseButton,
-  PopoverAnchor,
   VStack,
   Portal,
 } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import {
-  AiFillDelete,
-  AiOutlinePlus,
-  AiOutlineUserAdd,
-  AiTwotoneEdit,
-} from 'react-icons/ai'
+import { AiTwotoneEdit } from 'react-icons/ai'
 import { GiChoice } from 'react-icons/gi'
 import { FaSearch } from 'react-icons/fa'
 import { VscEye, VscEyeClosed } from 'react-icons/vsc'
@@ -55,7 +48,7 @@ import { SlUserFollow } from 'react-icons/sl'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
-import Swal from 'sweetalert2'
+
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { decodeUser } from '../../services/decode-user'
@@ -201,17 +194,6 @@ const UserAccount = () => {
       bg="form"
       boxShadow="md"
     >
-      {/* <Flex
-        h="40px"
-        w="full"
-        alignItems="center"
-        p={2}
-        fontSize="15px"
-        fontWeight="bold"
-      >
-        <Text>User Account</Text>
-      </Flex> */}
-
       <Flex p={2} w="full">
         <Flex flexDirection="column" gap={1} w="full">
           <Flex justifyContent="space-between" alignItems="center">
@@ -304,7 +286,7 @@ const UserAccount = () => {
                         <Td fontSize="11px">{user.addedBy}</Td>
                         <Td fontSize="11px">{user.dateAdded}</Td>
 
-                        <Td>
+                        <Td pl={0}>
                           <HStack>
                             <Button
                               bg="none"
@@ -333,12 +315,12 @@ const UserAccount = () => {
                                           {user.isActive === true ? (
                                             <Text>
                                               Are you sure you want to set this
-                                              department inactive?
+                                              user account inactive?
                                             </Text>
                                           ) : (
                                             <Text>
                                               Are you sure you want to set this
-                                              department active?
+                                              user account active?
                                             </Text>
                                           )}
                                           <Button
@@ -589,10 +571,6 @@ const DrawerComponent = (props) => {
         { shouldValidate: true },
       )
     }
-
-    // return () => {
-    //   ;
-    // };
   }, [editData])
 
   console.log(watch('formData.userRoleId'))
@@ -612,6 +590,8 @@ const DrawerComponent = (props) => {
                   <Input
                     {...register('formData.fullName')}
                     placeholder="Please enter Fullname"
+                    autoFocus
+                    autoComplete="off"
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.fullName?.message}
@@ -623,7 +603,11 @@ const DrawerComponent = (props) => {
                   <Input
                     {...register('formData.userName')}
                     placeholder="Please enter Fullname"
+                    autoComplete="off"
                     disabled={disableEdit}
+                    readOnly={disableEdit}
+                    _disabled={{ color: 'black' }}
+                    bgColor={disableEdit && 'gray.300'}
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.userName?.message}
@@ -637,6 +621,7 @@ const DrawerComponent = (props) => {
                       type={showPassword ? 'text' : 'password'}
                       {...register('formData.password')}
                       placeholder="Please enter Password"
+                      autoComplete="off"
                     />
                     <InputRightElement>
                       <Button

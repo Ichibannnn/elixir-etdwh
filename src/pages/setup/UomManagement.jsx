@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Drawer,
   DrawerBody,
@@ -8,33 +9,57 @@ import {
   DrawerHeader,
   DrawerOverlay,
   Flex,
+  FormLabel,
   HStack,
   Input,
   InputGroup,
   InputLeftElement,
+  InputRightElement,
   Select,
   Skeleton,
   Stack,
   Table,
-  TableContainer,
   Tbody,
   Td,
   Text,
   Th,
+  useToast,
   Thead,
   Tr,
   useDisclosure,
-} from "@chakra-ui/react";
-import React from "react";
-import { FcAutomatic } from "react-icons/fc";
-import { GiWeight } from "react-icons/gi";
-import { FaSearch } from "react-icons/fa";
-import PageScroll from "../../utils/PageScroll";
-import request from "../../services/ApiClient";
-import { useEffect } from "react";
-import { useState } from "react";
-import { AiTwotoneEdit, AiFillDelete, AiOutlinePlus } from "react-icons/ai";
-import Swal from "sweetalert2";
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverHeader,
+  PopoverBody,
+  PopoverFooter,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverAnchor,
+  VStack,
+  Portal,
+  TableContainer,
+} from '@chakra-ui/react'
+import React, { useState } from 'react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import {
+  AiFillDelete,
+  AiOutlinePlus,
+  AiOutlineUserAdd,
+  AiTwotoneEdit,
+} from 'react-icons/ai'
+import { GiChoice } from 'react-icons/gi'
+import { FaSearch, FaUsers, FaUserTag } from 'react-icons/fa'
+import { VscEye, VscEyeClosed } from 'react-icons/vsc'
+import { SlUserFollow } from 'react-icons/sl'
+import PageScroll from '../../utils/PageScroll'
+import request from '../../services/ApiClient'
+import { ToastComponent } from '../../components/Toast'
+import Swal from 'sweetalert2'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import { decodeUser } from '../../services/decode-user'
 import {
   Pagination,
   usePagination,
@@ -43,22 +68,32 @@ import {
   PaginationPrevious,
   PaginationContainer,
   PaginationPageGroup,
-} from "@ajna/pagination";
+} from '@ajna/pagination'
 
 const UomManagement = () => {
-  const [uom, setUOM] = useState([]);
-  const [search, setSearch] = useState("");
-  const [editData, setEditData] = useState({
-    id: "",
-    uoM_Code: "",
-    uoM_Description: "",
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [pageTotal, setPageTotal] = useState(undefined);
+  const [uom, setUom] = useState([])
+  const [editData, setEditData] = useState([])
+  const [status, setStatus] = useState(true)
+  const [search, setSearch] = useState('')
+  const toast = useToast()
+  const currentUser = decodeUser()
+
+  const [isLoading, setIsLoading] = useState(true)
+  const [pageTotal, setPageTotal] = useState(undefined)
+  const [disableEdit, setDisableEdit] = useState(false)
+
+  // FETCH API ROLES:
+  const fetchUomApi = async (pageNumber, pageSize, status, search) => {
+    const response = await request.get(
+      `Uom/GetAllUomWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+    )
+
+    return response.data
+  }
 
   //PAGINATION
-  const outerLimit = 2;
-  const innerLimit = 2;
+  const outerLimit = 2
+  const innerLimit = 2
   const {
     currentPage,
     setCurrentPage,
@@ -73,92 +108,89 @@ const UomManagement = () => {
       inner: innerLimit,
     },
     initialState: { currentPage: 1, pageSize: 5 },
-  });
-
-  //SHOW DATA TABLE
-  const getOUMHandler = async (pageNumber, pageSize, search) => {
-    const response = await request.get(
-      `Uom/GetAllUomWithPaginationOrig/true?pageNumber=${pageNumber}&pageSize=${pageSize}&search=${search}`
-    );
-
-    return response.data;
-  };
-
-  const getOUMHandlerData = () => {
-    getOUMHandler(currentPage, pageSize, search).then((res) => {
-      setUOM(res);
-      setIsLoading(false);
-      setPageTotal(res.totalCount);
-    });
-  };
-
-  useEffect(() => {
-    getOUMHandlerData();
-
-    return () => {
-      setUOM();
-    };
-  }, [currentPage, pageSize, search]);
+  })
 
   const handlePageChange = (nextPage) => {
-    setCurrentPage(nextPage);
-  };
+    setCurrentPage(nextPage)
+  }
 
   const handlePageSizeChange = (e) => {
-    const pageSize = Number(e.target.value);
-    setPageSize(pageSize);
-  };
+    const pageSize = Number(e.target.value)
+    setPageSize(pageSize)
+  }
 
-  //SEARCH
+  //STATUS
+  const statusHandler = (data) => {
+    setStatus(data)
+  }
+
+  const changeStatusHandler = (id, isActive) => {
+    let routeLabel
+    console.log(id)
+    console.log(isActive)
+    if (isActive) {
+      routeLabel = 'InActiveUom'
+    } else {
+      routeLabel = 'ActivateUom'
+    }
+
+    request
+      .put(`Uom/${routeLabel}`, { id: id })
+      .then((res) => {
+        ToastComponent('Success', 'Status updated', 'success', toast)
+        getUomHandler()
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
+
+  //SHOW MAIN MENU DATA----
+  const getUomHandler = () => {
+    fetchUomApi(currentPage, pageSize, status, search).then((res) => {
+      setIsLoading(false)
+      setUom(res)
+      setPageTotal(res.totalCount)
+    })
+  }
+
+  useEffect(() => {
+    getUomHandler()
+
+    return () => {
+      setUom([])
+    }
+  }, [currentPage, pageSize, status, search])
+
+  // SEARCH
   const searchHandler = (inputValue) => {
-    setSearch(inputValue);
-  };
+    setSearch(inputValue)
+    console.log(inputValue)
+  }
 
-  //ADD UOM
-  const addUOMHandler = () => {
+  //ADD MAIN MENU HANDLER---
+  const addUomHandler = () => {
     setEditData({
-      id: "",
-      uoM_Code: "",
-      uoM_Description: "",
-    });
-    onOpen();
-  };
+      id: '',
+      uomCode: '',
+      uomDescription: '',
+      addedBy: currentUser.userName,
+      modifiedBy: '',
+    })
+    onOpen()
+    setDisableEdit(false)
+  }
 
-  //EDIT DATA TABLE
-  const editHandler = (edit) => {
-    onOpen();
-    setEditData({
-      id: edit.id,
-      uoM_Code: edit.uoM_Code,
-      uoM_Description: edit.uoM_Description,
-    });
-  };
+  //EDIT ROLE--
+  const editUomHandler = (uoms) => {
+    setDisableEdit(true)
+    setEditData(uoms)
+    onOpen()
+    // console.log(mod.mainMenu)
+  }
 
-  //DELETE DATA
-  const deleteUOMHandler = (id) => {
-    try {
-      Swal.fire({
-        title: "Are you sure?",
-        text: "You won't be able to revert this!",
-        icon: "warning",
-        showCancelButton: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!",
-      }).then((confirmButtonText, showCancelButton) => {
-        if (confirmButtonText.isConfirmed) {
-          request.delete(`Uom/DeleteUom/${id}`);
-
-          Swal.fire("Deleted!", "Your file has been deleted.", "success");
-
-          getOUMHandlerData();
-        } else {
-          console.log("Not deleted");
-        }
-      });
-    } catch (error) {}
-  };
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  //FOR DRAWER (Drawer / Drawer Tagging)
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (
     <Flex
@@ -170,56 +202,40 @@ const UomManagement = () => {
       bg="form"
       boxShadow="md"
     >
-      <Flex
-        h="40px"
-        w="full"
-        alignItems="center"
-        pl={2}
-        fontSize="15px"
-        fontWeight="bold"
-      >
-        {/* <GiWeight size="25px" /> */}
-        <Text>UOM Management</Text>
-      </Flex>
-
       <Flex p={2} w="full">
         <Flex flexDirection="column" gap={1} w="full">
-          <Flex flexDirection="row" justifyContent="space-between">
-            <InputGroup size="xs">
-              <InputLeftElement
-                pointerEvents="none"
-                children={<FaSearch color="gray.300" />}
-              />
-              <Input
-                borderRadius="none"
-                w="20%"
-                size="xs"
-                type="text"
-                bg="gray.200"
-                placeholder="Search: Description"
-                borderColor="gray.400"
-                _hover={{ borderColor: "gray.400" }}
-                onChange={(e) => searchHandler(e.target.value)}
-              />
-            </InputGroup>
+          <Flex justifyContent="space-between" alignItems="center">
+            <HStack>
+              <InputGroup size="sm">
+                <InputLeftElement
+                  pointerEvents="none"
+                  children={<FaSearch color="black" />}
+                />
+                <Input
+                  borderRadius="none"
+                  size="sm"
+                  type="text"
+                  placeholder="Search: Description"
+                  borderColor="gray.400"
+                  _hover={{ borderColor: 'gray.400' }}
+                  onChange={(e) => searchHandler(e.target.value)}
+                />
+              </InputGroup>
+            </HStack>
 
-            {/* <Button
-              size="xs"
-              bg="teal.400"
-              color="#fff"
-              _hover={{ bg: "teal.300" }}
-              // bgColor="blackAlpha.400"
-              // color="blackAlpha.900"
-              w="7%"
-              leftIcon={<AiOutlinePlus />}
-              borderRadius="none"
-              onClick={addUOMHandler}
-            >
-              New UOM
-            </Button> */}
+            <HStack flexDirection="row">
+              <Text fontSize="12px">STATUS:</Text>
+              <Select
+                fontSize="12px"
+                onChange={(e) => statusHandler(e.target.value)}
+              >
+                <option value={true}>Active</option>
+                <option value={false}>Inactive</option>
+              </Select>
+            </HStack>
           </Flex>
 
-          <Flex w="full">
+          <Flex w="full" flexDirection="column" gap={2}>
             <PageScroll>
               {isLoading ? (
                 <Stack width="full">
@@ -233,246 +249,339 @@ const UomManagement = () => {
               ) : (
                 <Table
                   size="sm"
-                  variant="striped"
                   width="full"
                   border="none"
                   boxShadow="md"
+                  bg="gray.200"
+                  variant="striped"
                 >
                   <Thead bg="secondary">
                     <Tr fontSize="15px">
-                      <Th color="#D6D6D6" fontSize="8px">
+                      <Th color="#D6D6D6" fontSize="10px">
                         ID
                       </Th>
-                      <Th color="#D6D6D6" fontSize="8px">
-                        UOM
+                      <Th color="#D6D6D6" fontSize="10px">
+                        UOM Code
                       </Th>
-                      <Th color="#D6D6D6" fontSize="8px">
+                      <Th color="#D6D6D6" fontSize="10px">
                         Description
                       </Th>
-                      <Th color="#D6D6D6" fontSize="8px">
+                      <Th color="#D6D6D6" fontSize="10px">
                         Date Added
                       </Th>
-                      <Th color="#D6D6D6" fontSize="8px">
-                        Added by
+                      <Th color="#D6D6D6" fontSize="10px">
+                        Added By
                       </Th>
-                      <Th color="#D6D6D6" fontSize="8px">
+                      <Th color="#D6D6D6" fontSize="10px">
                         Action
                       </Th>
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {uom?.uom
-                      .map((showData, i) => (
-                        <Tr key={i}>
-                          <Td fontSize="11px">{showData.id}</Td>
-                          <Td fontSize="11px">{showData.uoM_Code}</Td>
-                          <Td fontSize="11px">{showData.uoM_Description}</Td>
-                          <Td fontSize="11px">{showData.dateAdded}</Td>
-                          <Td fontSize="11px">{showData.addedBy}</Td>
-                          <Td>
+                    {uom?.uom?.map((uoms, i) => (
+                      <Tr key={i}>
+                        <Td fontSize="11px">{uoms.id}</Td>
+                        <Td fontSize="11px">{uoms.uomCode}</Td>
+                        <Td fontSize="11px">{uoms.uomDescription}</Td>
+                        <Td fontSize="11px">{uoms.dateAdded}</Td>
+                        <Td fontSize="11px">{uoms.addedBy}</Td>
+
+                        <Td pl={0}>
+                          <Flex>
                             <HStack>
-                              <Button p={0} bg="none" size="xs">
-                                <AiTwotoneEdit
-                                  onClick={() => editHandler(showData)}
-                                />
+                              <Button
+                                bg="none"
+                                onClick={() => editUomHandler(uoms)}
+                              >
+                                <AiTwotoneEdit />
                               </Button>
 
-                              <Button p={0} bg="none" size="xs">
-                                <AiFillDelete
-                                  onClick={() => deleteUOMHandler(showData.id)}
-                                />
-                              </Button>
+                              <Popover>
+                                {({ onClose }) => (
+                                  <>
+                                    <PopoverTrigger>
+                                      <Button p={0} bg="none">
+                                        <GiChoice />
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <Portal>
+                                      <PopoverContent bg="primary" color="#fff">
+                                        <PopoverArrow bg="primary" />
+                                        <PopoverCloseButton />
+                                        <PopoverHeader>
+                                          Confirmation!
+                                        </PopoverHeader>
+                                        <PopoverBody>
+                                          <VStack onClick={onClose}>
+                                            {uoms.isActive === true ? (
+                                              <Text>
+                                                Are you sure you want to set
+                                                this UOM inactive?
+                                              </Text>
+                                            ) : (
+                                              <Text>
+                                                Are you sure you want to set
+                                                this UOM active?
+                                              </Text>
+                                            )}
+                                            <Button
+                                              colorScheme="green"
+                                              size="sm"
+                                              onClick={() =>
+                                                changeStatusHandler(
+                                                  uoms.id,
+                                                  uoms.isActive,
+                                                )
+                                              }
+                                            >
+                                              Yes
+                                            </Button>
+                                          </VStack>
+                                        </PopoverBody>
+                                      </PopoverContent>
+                                    </Portal>
+                                  </>
+                                )}
+                              </Popover>
                             </HStack>
-                          </Td>
-                        </Tr>
-                      ))
-                      .reverse()}
+                          </Flex>
+                        </Td>
+                      </Tr>
+                    ))}
                   </Tbody>
                 </Table>
               )}
             </PageScroll>
+
+            <Flex justifyContent="space-between" mt={3}>
+              <Button
+                size="sm"
+                colorScheme="blue"
+                _hover={{ bg: 'blue.400', color: '#fff' }}
+                w="auto"
+                leftIcon={<FaUsers />}
+                borderRadius="none"
+                onClick={addUomHandler}
+              >
+                New Uom
+              </Button>
+
+              {/* PROPS */}
+              {isOpen && (
+                <DrawerComponent
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  fetchUomApi={fetchUomApi}
+                  getUomHandler={getUomHandler}
+                  editData={editData}
+                  disableEdit={disableEdit}
+                />
+              )}
+
+              <Stack>
+                <Pagination
+                  pagesCount={pagesCount}
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                >
+                  <PaginationContainer>
+                    <PaginationPrevious
+                      bg="primary"
+                      color="white"
+                      p={1}
+                      _hover={{ bg: 'green', color: 'white' }}
+                      size="sm"
+                    >
+                      {'<<'}
+                    </PaginationPrevious>
+                    <PaginationPageGroup ml={1} mr={1}>
+                      {pages.map((page) => (
+                        <PaginationPage
+                          _hover={{ bg: 'green', color: 'white' }}
+                          _focus={{ bg: 'green' }}
+                          p={3}
+                          bg="primary"
+                          color="white"
+                          key={`pagination_page_${page}`}
+                          page={page}
+                          size="sm"
+                        />
+                      ))}
+                    </PaginationPageGroup>
+                    <HStack>
+                      <PaginationNext
+                        bg="primary"
+                        color="white"
+                        p={1}
+                        _hover={{ bg: 'green', color: 'white' }}
+                        size="sm"
+                        mb={2}
+                      >
+                        {'>>'}
+                      </PaginationNext>
+                      <Select
+                        onChange={handlePageSizeChange}
+                        bg="#FFFFFF"
+                        // size="sm"
+                        mb={2}
+                        variant="outline"
+                      >
+                        <option value={Number(5)}>5</option>
+                        <option value={Number(10)}>10</option>
+                        <option value={Number(25)}>25</option>
+                        <option value={Number(50)}>50</option>
+                      </Select>
+                    </HStack>
+                  </PaginationContainer>
+                </Pagination>
+              </Stack>
+            </Flex>
           </Flex>
         </Flex>
       </Flex>
-
-      {/* Props */}
-      {isOpen && (
-        <DrawerComponent
-          isOpen={isOpen}
-          onClose={onClose}
-          editData={editData}
-          setEditData={setEditData}
-          getOUMHandlerData={getOUMHandlerData}
-          deleteUOMHandler={deleteUOMHandler}
-        />
-      )}
-
-      <Flex justifyContent="space-between">
-        <Button
-          size="sm"
-          bg="teal.400"
-          color="#fff"
-          _hover={{ bg: "teal.300" }}
-          // bgColor="blackAlpha.400"
-          // color="blackAlpha.900"
-          w="8%"
-          leftIcon={<AiOutlinePlus />}
-          borderRadius="none"
-          onClick={addUOMHandler}
-        >
-          New UOM
-        </Button>
-
-        <Stack>
-          <Pagination
-            pagesCount={pagesCount}
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-          >
-            <PaginationContainer>
-              <PaginationPrevious
-                bg="primary"
-                color="white"
-                p={1}
-                _hover={{ bg: "green", color: "white" }}
-                size="sm"
-              >
-                {"<<"}
-              </PaginationPrevious>
-              <PaginationPageGroup ml={1} mr={1}>
-                {pages.map((page) => (
-                  <PaginationPage
-                    _hover={{ bg: "green", color: "white" }}
-                    _focus={{ bg: "green" }}
-                    p={3}
-                    bg="primary"
-                    color="white"
-                    key={`pagination_page_${page}`}
-                    page={page}
-                    size="sm"
-                  />
-                ))}
-              </PaginationPageGroup>
-              <HStack>
-                <PaginationNext
-                  bg="primary"
-                  color="white"
-                  p={1}
-                  _hover={{ bg: "green", color: "white" }}
-                  size="sm"
-                  mb={2}
-                >
-                  {">>"}
-                </PaginationNext>
-                <Select
-                  onChange={handlePageSizeChange}
-                  bg="#FFFFFF"
-                  size="sm"
-                  mb={2}
-                >
-                  <option value={Number(5)}>5</option>
-                  <option value={Number(10)}>10</option>
-                  <option value={Number(25)}>25</option>
-                  <option value={Number(50)}>50</option>
-                </Select>
-              </HStack>
-            </PaginationContainer>
-          </Pagination>
-        </Stack>
-      </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default UomManagement;
+export default UomManagement
+
+const schema = yup.object().shape({
+  formData: yup.object().shape({
+    id: yup.string(),
+    uomCode: yup.string().required('Uom Code name is required'),
+    uomDescription: yup.string().required('Description name is required'),
+  }),
+})
+
+const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
-  const { isOpen, onClose, setEditData, editData, getOUMHandlerData } = props;
+  const { isOpen, onClose, getUomHandler, editData, disableEdit } = props
+  const toast = useToast()
 
-  const submitHandler = async () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    setValue,
+    watch,
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: 'onChange',
+    defaultValues: {
+      formData: {
+        id: '',
+        uomCode: '',
+        uomDescription: '',
+        addedBy: currentUser?.userName,
+        modifiedBy: '',
+      },
+    },
+  })
+
+  const submitHandler = async (data) => {
+    try {
+      if (data.formData.id === '') {
+        delete data.formData['id']
+        const res = await request
+          .post('Uom/AddNewUom', data.formData)
+          .then((res) => {
+            ToastComponent('Success', 'New UOM created!', 'success', toast)
+            getUomHandler()
+            onClose()
+          })
+          .catch((err) => {
+            ToastComponent('Error', err.response.data, 'error', toast)
+            // data.formData.id = "";
+          })
+      } else {
+        const res = await request
+          .put(`Uom/UpdateUom`, data.formData)
+          .then((res) => {
+            ToastComponent('Success', 'UOM Updated', 'success', toast)
+            getUomHandler()
+            onClose(onClose)
+          })
+          .catch((error) => {
+            ToastComponent(
+              'Update Failed',
+              error.response.data,
+              'warning',
+              toast,
+            )
+          })
+      }
+    } catch (err) {}
+  }
+
+  useEffect(() => {
     if (editData.id) {
-      //EDIT - PUT
-      const submitData = {
-        id: editData.id,
-        uoM_Code: editData.uoM_Code,
-        uoM_Description: editData.uoM_Description,
-      };
-      const id = editData.id;
-      const res = await request.put(`Uom/UpdateUom/${id}`, submitData);
-
-      Swal.fire({
-        position: "center",
-        icon: "success",
-        title: "Successfully updated UOM!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-      onClose();
-      getOUMHandlerData();
-    } else if (editData.id === "") {
-      delete editData["id"];
-      const res = await request.post("Uom/AddNewUOM", editData);
-
-      Swal.fire({
-        position: "center",
-        icon: "success",
-        title: "Successfully added UOM!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-
-      onClose();
-      getOUMHandlerData();
+      setValue(
+        'formData',
+        {
+          id: editData.id,
+          uomCode: editData?.uomCode,
+          uomDescription: editData?.uomDescription,
+          modifiedBy: currentUser.userName,
+        },
+        { shouldValidate: true },
+      )
     }
-  };
+  }, [editData])
+
+  console.log(watch('formData'))
 
   return (
     <>
-      <Drawer isOpen={isOpen} placement="right" onClick={onClose}>
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader>UOM Information</DrawerHeader>
-
-          <DrawerBody>
-            <Text fontSize="sm">UOM Name</Text>
-            <Input
-              size="sm"
-              value={editData.uoM_Code}
-              placeholder="Enter UOM Name"
-              onChange={(e) =>
-                setEditData({
-                  id: editData.id,
-                  uoM_Code: e.target.value,
-                  uoM_Description: editData.uoM_Description,
-                })
-              }
-            />
-
-            <Text fontSize="sm">UOM Description</Text>
-            <Input
-              size="sm"
-              value={editData.uoM_Description}
-              placeholder="Enter UOM Description Name"
-              onChange={(e) =>
-                setEditData({
-                  id: editData.id,
-                  uoM_Code: editData.uoM_Code,
-                  uoM_Description: e.target.value,
-                })
-              }
-            />
-          </DrawerBody>
-
-          <DrawerFooter>
-            <Button variant="outline" mr={3} size="sm" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button colorScheme="blue" size="sm" onClick={submitHandler}>
-              Submit
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
+        <form onSubmit={handleSubmit(submitHandler)}>
+          <DrawerContent>
+            <DrawerHeader borderBottomWidth="1px">UOM Form</DrawerHeader>
+            <DrawerCloseButton />
+            <DrawerBody>
+              <Stack spacing="7px">
+                <Box>
+                  <FormLabel>UOM Code:</FormLabel>
+                  <Input
+                    {...register('formData.uomCode')}
+                    placeholder="Please enter Main Menu name"
+                    autoComplete="off"
+                    autoFocus
+                    disabled={disableEdit}
+                    readOnly={disableEdit}
+                    _disabled={{ color: 'black' }}
+                    bgColor={disableEdit && 'gray.300'}
+                  />
+                  <Text color="red" fontSize="xs">
+                    {errors.formData?.uomCode?.message}
+                  </Text>
+                </Box>
+                <Box>
+                  <FormLabel>Description:</FormLabel>
+                  <Input
+                    {...register('formData.uomDescription')}
+                    placeholder="Please enter Main Menu name"
+                    autoComplete="off"
+                  />
+                  <Text color="red" fontSize="xs">
+                    {errors.formData?.uomDescription?.message}
+                  </Text>
+                </Box>
+              </Stack>
+            </DrawerBody>
+            <DrawerFooter borderTopWidth="1px">
+              <Button variant="outline" mr={3} onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={!isValid} colorScheme="blue">
+                Submit
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </form>
       </Drawer>
     </>
-  );
-};
+  )
+}

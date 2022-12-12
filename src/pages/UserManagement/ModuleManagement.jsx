@@ -51,7 +51,7 @@ import {
 } from 'react-icons/ai'
 import { GiChoice } from 'react-icons/gi'
 import { FaSearch, FaUsers, FaUserTag } from 'react-icons/fa'
-import { SlUserFollow } from 'react-icons/sl'
+import { HiDocumentText } from 'react-icons/hi'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
@@ -296,7 +296,7 @@ const ModuleManagement = () => {
                         <Td fontSize="11px">{mod.dateAdded}</Td>
                         <Td fontSize="11px">{mod.addedBy}</Td>
 
-                        <Td>
+                        <Td pl={0}>
                           <Flex>
                             <HStack>
                               <Button
@@ -356,14 +356,6 @@ const ModuleManagement = () => {
                             </HStack>
                           </Flex>
                         </Td>
-                        {/* <Td>
-                          <Button
-                            bg="none"
-                            // onClick={() => editRolesHandler(rol)}
-                          >
-                            <FaUserTag />
-                          </Button>
-                        </Td> */}
                       </Tr>
                     ))}
                   </Tbody>
@@ -377,7 +369,7 @@ const ModuleManagement = () => {
                 colorScheme="blue"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                // leftIcon={<IoDocumentsSharp />}
+                leftIcon={<HiDocumentText />}
                 borderRadius="none"
                 onClick={addModuleHandler}
               >
@@ -558,7 +550,6 @@ const DrawerComponent = (props) => {
           mainMenuId: editData?.mainMenuId,
           subMenuName: editData?.subMenuName,
           moduleName: editData?.moduleName,
-          // modifiedBy: currentUser.userName,
         },
         { shouldValidate: true },
       )
@@ -604,6 +595,7 @@ const DrawerComponent = (props) => {
                   <Input
                     {...register('formData.subMenuName')}
                     placeholder="Please enter Sub-Menu name"
+                    autoComplete="off"
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.subMenuName?.message}
@@ -615,6 +607,7 @@ const DrawerComponent = (props) => {
                   <Input
                     {...register('formData.moduleName')}
                     placeholder="Please enter Menu Path name"
+                    autoComplete="off"
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.moduleName?.message}
@@ -627,7 +620,7 @@ const DrawerComponent = (props) => {
                 Cancel
               </Button>
 
-              <Button type="submit" colorScheme="blue">
+              <Button type="submit" colorScheme="blue" disabled={!isValid}>
                 Submit
               </Button>
             </DrawerFooter>

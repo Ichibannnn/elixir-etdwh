@@ -32,32 +32,21 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverBody,
-  PopoverFooter,
   PopoverArrow,
   PopoverCloseButton,
-  PopoverAnchor,
   VStack,
   Portal,
-  TableContainer,
 } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import {
-  AiFillDelete,
-  AiOutlinePlus,
-  AiOutlineUserAdd,
-  AiTwotoneEdit,
-} from 'react-icons/ai'
+import { AiTwotoneEdit } from 'react-icons/ai'
 import { GiChoice } from 'react-icons/gi'
 import { BsBuilding } from 'react-icons/bs'
 import { FaSearch } from 'react-icons/fa'
-import { VscEye, VscEyeClosed } from 'react-icons/vsc'
-import { SlUserFollow } from 'react-icons/sl'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
-import Swal from 'sweetalert2'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { decodeUser } from '../../services/decode-user'
@@ -211,7 +200,7 @@ const Department = () => {
                 <Input
                   borderRadius="none"
                   size="sm"
-                  fontSize="12px"
+                  fontSize="10px"
                   type="text"
                   placeholder="Search: Department Name"
                   borderColor="gray.400"
@@ -284,7 +273,7 @@ const Department = () => {
                         <Td fontSize="11px">{dep.addedBy}</Td>
                         <Td fontSize="11px">{dep.dateAdded}</Td>
 
-                        <Td>
+                        <Td pl={0}>
                           <HStack>
                             <Button
                               bg="none"
@@ -451,7 +440,6 @@ const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
   const { isOpen, onClose, getUserHandler, editData, disableEdit } = props
-  const [roles, setRoles] = useState([])
   const toast = useToast()
 
   const {
@@ -554,15 +542,12 @@ const DrawerComponent = (props) => {
                   <Input
                     {...register('formData.departmentCode')}
                     placeholder="Please enter Department Code"
-                    bgColor={disableEdit ? 'gray' : 'none'}
+                    autoComplete="off"
+                    autoFocus
                     disabled={disableEdit}
                     readOnly={disableEdit}
-                    // onChange={(e) =>
-                    //   setEditData((prevValue) => ({
-                    //     ...prevValue,
-                    //     fullName: e.target.value,
-                    //   }))
-                    // }
+                    _disabled={{ color: 'black' }}
+                    bgColor={disableEdit && 'gray.300'}
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.departmentCode?.message}
@@ -574,12 +559,7 @@ const DrawerComponent = (props) => {
                   <Input
                     {...register('formData.departmentName')}
                     placeholder="Please enter Department Name"
-                    // onChange={(e) =>
-                    //   setEditData((prevValue) => ({
-                    //     ...prevValue,
-                    //     userName: e.target.value,
-                    //   }))
-                    // }
+                    autoComplete="off"
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.departmentName?.message}
@@ -591,7 +571,7 @@ const DrawerComponent = (props) => {
               <Button variant="outline" mr={3} onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" colorScheme="blue">
+              <Button type="submit" colorScheme="blue" disabled={!isValid}>
                 Submit
               </Button>
             </DrawerFooter>

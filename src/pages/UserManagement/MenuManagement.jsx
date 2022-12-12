@@ -74,23 +74,51 @@ const MenuManagement = () => {
   const [mainMenu, setMainMenu] = useState([])
   const [editData, setEditData] = useState([])
   const [status, setStatus] = useState(true)
+  const [search, setSearch] = useState('')
   const toast = useToast()
   const currentUser = decodeUser()
 
   const [isLoading, setIsLoading] = useState(true)
+  const [pageTotal, setPageTotal] = useState(undefined)
   const [disableEdit, setDisableEdit] = useState(false)
 
-  console.log(status)
+  console.log(mainMenu)
 
   // FETCH API ROLES:
-  const fetchMainMenuApi = async (status) => {
-    if (status === true || status === 'true') {
-      const response = await request.get(`Module/GetAllActiveMainMenu`)
-      return response.data
-    } else if (status === false || status === 'false') {
-      const response = await request.get(`Module/GetAllInActiveMainMenu`)
-      return response.data
-    }
+  const fetchMainMenuApi = async (pageNumber, pageSize, status, search) => {
+    const response = await request.get(
+      `Module/GetAllMainMenuPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+    )
+
+    return response.data
+  }
+
+  //PAGINATION
+  const outerLimit = 2
+  const innerLimit = 2
+  const {
+    currentPage,
+    setCurrentPage,
+    pagesCount,
+    pages,
+    setPageSize,
+    pageSize,
+  } = usePagination({
+    total: pageTotal,
+    limits: {
+      outer: outerLimit,
+      inner: innerLimit,
+    },
+    initialState: { currentPage: 1, pageSize: 5 },
+  })
+
+  const handlePageChange = (nextPage) => {
+    setCurrentPage(nextPage)
+  }
+
+  const handlePageSizeChange = (e) => {
+    const pageSize = Number(e.target.value)
+    setPageSize(pageSize)
   }
 
   //STATUS
@@ -100,6 +128,8 @@ const MenuManagement = () => {
 
   const changeStatusHandler = (id, isActive) => {
     let routeLabel
+    console.log(id)
+    console.log(isActive)
     if (isActive) {
       routeLabel = 'InActiveMenu'
     } else {
@@ -107,7 +137,7 @@ const MenuManagement = () => {
     }
 
     request
-      .put(`/Module/${routeLabel}`, { id: id })
+      .put(`Module/${routeLabel}`, { id: id })
       .then((res) => {
         ToastComponent('Success', 'Status updated', 'success', toast)
         getMainMenuHandler()
@@ -115,14 +145,14 @@ const MenuManagement = () => {
       .catch((err) => {
         console.log(err)
       })
-    console.log(routeLabel)
   }
 
   //SHOW MAIN MENU DATA----
   const getMainMenuHandler = () => {
-    fetchMainMenuApi(status).then((res) => {
+    fetchMainMenuApi(currentPage, pageSize, status, search).then((res) => {
       setIsLoading(false)
       setMainMenu(res)
+      setPageTotal(res.totalCount)
     })
   }
 
@@ -132,7 +162,13 @@ const MenuManagement = () => {
     return () => {
       setMainMenu([])
     }
-  }, [status])
+  }, [currentPage, pageSize, status, search])
+
+  // SEARCH
+  const searchHandler = (inputValue) => {
+    setSearch(inputValue)
+    console.log(inputValue)
+  }
 
   //ADD MAIN MENU HANDLER---
   const addMainMenuHandler = () => {
@@ -152,7 +188,6 @@ const MenuManagement = () => {
     setDisableEdit(true)
     setEditData(mod)
     onOpen()
-    // console.log(mod.mainMenu)
   }
 
   //FOR DRAWER (Drawer / Drawer Tagging)
@@ -172,7 +207,7 @@ const MenuManagement = () => {
         <Flex flexDirection="column" gap={1} w="full">
           <Flex justifyContent="space-between" alignItems="center">
             <HStack>
-              {/* <InputGroup size="sm">
+              <InputGroup size="sm">
                 <InputLeftElement
                   pointerEvents="none"
                   children={<FaSearch color="black" />}
@@ -181,12 +216,12 @@ const MenuManagement = () => {
                   borderRadius="none"
                   size="sm"
                   type="text"
-                  placeholder="Search: User Role"
+                  placeholder="Search: Main Menu Name"
                   borderColor="gray.400"
                   _hover={{ borderColor: 'gray.400' }}
                   onChange={(e) => searchHandler(e.target.value)}
                 />
-              </InputGroup> */}
+              </InputGroup>
             </HStack>
 
             <HStack flexDirection="row">
@@ -241,14 +276,14 @@ const MenuManagement = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {mainMenu?.map((mod, i) => (
+                    {mainMenu?.module?.map((mod, i) => (
                       <Tr key={i}>
                         <Td fontSize="11px">{mod.id}</Td>
                         <Td fontSize="11px">{mod.mainMenu}</Td>
                         <Td fontSize="11px">{mod.addedBy}</Td>
                         <Td fontSize="11px">{mod.dateAdded}</Td>
 
-                        <Td>
+                        <Td pl={0}>
                           <Flex>
                             <HStack>
                               <Button
@@ -341,7 +376,7 @@ const MenuManagement = () => {
               )}
 
               <Stack>
-                {/* <Pagination
+                <Pagination
                   pagesCount={pagesCount}
                   currentPage={currentPage}
                   onPageChange={handlePageChange}
@@ -395,7 +430,7 @@ const MenuManagement = () => {
                       </Select>
                     </HStack>
                   </PaginationContainer>
-                </Pagination> */}
+                </Pagination>
               </Stack>
             </Flex>
           </Flex>
@@ -514,6 +549,8 @@ const DrawerComponent = (props) => {
                   <Input
                     {...register('formData.moduleName')}
                     placeholder="Please enter Main Menu name"
+                    autoComplete="off"
+                    autoFocus
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.moduleName?.message}
@@ -524,6 +561,7 @@ const DrawerComponent = (props) => {
                   <Input
                     {...register('formData.menuPath')}
                     placeholder="Please enter Main Menu name"
+                    autoComplete="off"
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.menuPath?.message}
@@ -535,7 +573,7 @@ const DrawerComponent = (props) => {
               <Button variant="outline" mr={3} onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" colorScheme="blue">
+              <Button type="submit" colorScheme="blue" disabled={!isValid}>
                 Submit
               </Button>
             </DrawerFooter>

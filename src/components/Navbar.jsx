@@ -1,10 +1,10 @@
-import React from "react";
-import { Button, Flex, Text } from "@chakra-ui/react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React from 'react'
+import { Button, Flex, Text } from '@chakra-ui/react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 const Navbar = ({ navBarData }) => {
-  var navigate = useNavigate();
-  const { pathname } = useLocation();
+  var navigate = useNavigate()
+  const { pathname } = useLocation()
 
   // console.log(pathname);
 
@@ -14,9 +14,9 @@ const Navbar = ({ navBarData }) => {
       {navBarData?.subCategory?.map((navbar, i) => (
         <Button
           key={i}
-          bgColor={pathname.includes(navbar.path) ? "buttonColor" : "secondary"}
+          bgColor={pathname.includes(navbar.path) ? 'buttonColor' : 'secondary'}
           onClick={() => navigate(navbar.path)}
-          _hover={{ bg: "#616161" }}
+          _hover={{ bg: '#616161' }}
           borderRadius="0%"
           size="sm"
         >
@@ -26,7 +26,7 @@ const Navbar = ({ navBarData }) => {
         </Button>
       ))}
     </Flex>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

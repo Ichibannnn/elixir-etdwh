@@ -32,31 +32,20 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverBody,
-  PopoverFooter,
   PopoverArrow,
   PopoverCloseButton,
-  PopoverAnchor,
   VStack,
   Portal,
-  TableContainer,
 } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import {
-  AiFillDelete,
-  AiOutlinePlus,
-  AiOutlineUserAdd,
-  AiTwotoneEdit,
-} from 'react-icons/ai'
-import { RiInboxUnarchiveFill } from 'react-icons/ri'
+import { AiTwotoneEdit } from 'react-icons/ai'
 import { FaSearch, FaUsers, FaUserTag } from 'react-icons/fa'
-import { VscEye, VscEyeClosed } from 'react-icons/vsc'
 import { GiChoice } from 'react-icons/gi'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
-import Swal from 'sweetalert2'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { decodeUser } from '../../services/decode-user'
@@ -204,8 +193,6 @@ const UserRole = () => {
   const moduleTaggingHandler = (id, roleName) => {
     setTaggingParameter({ roleId: id, roleName: roleName })
     openDrawerTagging()
-    // setSelectedId(id)
-    // setSelectedRolename(roleName)
   }
 
   return (
@@ -285,12 +272,6 @@ const UserRole = () => {
                       <Th color="#D6D6D6" fontSize="10px">
                         Date Added
                       </Th>
-                      {/* <Th color="#D6D6D6" fontSize="10px">
-                          Modified By
-                        </Th>
-                        <Th color="#D6D6D6" fontSize="10px">
-                          Date Modified
-                        </Th> */}
                       <Th color="#D6D6D6" fontSize="10px">
                         Action
                       </Th>
@@ -307,7 +288,7 @@ const UserRole = () => {
                         <Td fontSize="11px">{rol.addedBy}</Td>
                         <Td fontSize="11px">{rol.dateAdded}</Td>
 
-                        <Td>
+                        <Td pl={0}>
                           <Flex>
                             <HStack>
                               <Button
@@ -337,12 +318,12 @@ const UserRole = () => {
                                             {rol.isActive === true ? (
                                               <Text>
                                                 Are you sure you want to set
-                                                this department inactive?
+                                                this role inactive?
                                               </Text>
                                             ) : (
                                               <Text>
                                                 Are you sure you want to set
-                                                this department active?
+                                                this role active?
                                               </Text>
                                             )}
                                             <Button
@@ -415,7 +396,6 @@ const UserRole = () => {
                   onClose={closeDrawerTagging}
                   onOpen={openDrawerTagging}
                   taggingData={taggingParameter}
-                  // fetchRolesApi={fetchRolesApi}
                   getRolesHandler={getRolesHandler}
                   editData={editData}
                   disableEdit={disableEdit}
@@ -466,7 +446,6 @@ const UserRole = () => {
                       <Select
                         onChange={handlePageSizeChange}
                         bg="#FFFFFF"
-                        // size="sm"
                         mb={2}
                         variant="outline"
                       >
@@ -499,9 +478,7 @@ const schema = yup.object().shape({
 const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
-  const { isOpen, onClose, getRolesHandler, editData, disableEdit } = props
-  const [showPassword, setShowPassword] = useState(false)
-  const [roles, setRoles] = useState([])
+  const { isOpen, onClose, getRolesHandler, editData } = props
   const toast = useToast()
 
   const {
@@ -590,12 +567,8 @@ const DrawerComponent = (props) => {
                   <Input
                     {...register('formData.roleName')}
                     placeholder="Please enter User Role"
-                    // onChange={(e) =>
-                    //   setEditData((prevValue) => ({
-                    //     ...prevValue,
-                    //     userName: e.target.value,
-                    //   }))
-                    // }
+                    autoComplete="off"
+                    autoFocus
                   />
                   <Text color="red" fontSize="xs">
                     {errors.formData?.roleName?.message}
@@ -607,7 +580,7 @@ const DrawerComponent = (props) => {
               <Button variant="outline" mr={3} onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" colorScheme="blue">
+              <Button type="submit" colorScheme="blue" disabled={!isValid}>
                 Submit
               </Button>
             </DrawerFooter>
