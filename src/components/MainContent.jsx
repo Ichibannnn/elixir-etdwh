@@ -1,6 +1,6 @@
-import { Flex, Table, Text, Th, Thead } from "@chakra-ui/react";
-import React from "react";
-import { Outlet } from "react-router-dom";
+import { Flex, Table, Text, Th, Thead } from '@chakra-ui/react'
+import React from 'react'
+import { Outlet } from 'react-router-dom'
 
 const MainContent = () => {
   return (
@@ -9,7 +9,7 @@ const MainContent = () => {
     </Flex>
 
     // <div>MainContent</div>
-  );
-};
+  )
+}
 
-export default MainContent;
+export default MainContent

@@ -14,7 +14,6 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  InputRightElement,
   Select,
   Skeleton,
   Stack,
@@ -32,31 +31,21 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverBody,
-  PopoverFooter,
   PopoverArrow,
   PopoverCloseButton,
-  PopoverAnchor,
   VStack,
   Portal,
-  TableContainer,
 } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import {
-  AiFillDelete,
-  AiOutlinePlus,
-  AiOutlineUserAdd,
-  AiTwotoneEdit,
-} from 'react-icons/ai'
+import { AiTwotoneEdit } from 'react-icons/ai'
 import { GiChoice } from 'react-icons/gi'
-import { FaSearch, FaUsers, FaUserTag } from 'react-icons/fa'
-import { VscEye, VscEyeClosed } from 'react-icons/vsc'
-import { SlUserFollow } from 'react-icons/sl'
+import { FaSearch } from 'react-icons/fa'
+import { ImMeter } from 'react-icons/im'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
-import Swal from 'sweetalert2'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { decodeUser } from '../../services/decode-user'
@@ -353,17 +342,17 @@ const UomManagement = () => {
               )}
             </PageScroll>
 
-            <Flex justifyContent="space-between" mt={3}>
+            <Flex justifyContent="space-between">
               <Button
                 size="sm"
                 colorScheme="blue"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                leftIcon={<FaUsers />}
+                leftIcon={<ImMeter fontSize="20px" />}
                 borderRadius="none"
                 onClick={addUomHandler}
               >
-                New Uom
+                New UOM
               </Button>
 
               {/* PROPS */}
@@ -465,7 +454,6 @@ const DrawerComponent = (props) => {
     formState: { errors, isValid },
     setValue,
     watch,
-    reset,
   } = useForm({
     resolver: yupResolver(schema),
     mode: 'onChange',
@@ -493,7 +481,7 @@ const DrawerComponent = (props) => {
           })
           .catch((err) => {
             ToastComponent('Error', err.response.data, 'error', toast)
-            // data.formData.id = "";
+            data.formData.id = ''
           })
       } else {
         const res = await request

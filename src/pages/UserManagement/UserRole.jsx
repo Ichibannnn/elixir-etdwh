@@ -14,7 +14,6 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  InputRightElement,
   Select,
   Skeleton,
   Stack,
@@ -167,6 +166,7 @@ const UserRole = () => {
     })
     onOpen()
     setDisableEdit(false)
+    // reset()
   }
 
   //EDIT ROLE--
@@ -365,13 +365,13 @@ const UserRole = () => {
               )}
             </PageScroll>
 
-            <Flex justifyContent="space-between" mt={3}>
+            <Flex justifyContent="space-between">
               <Button
                 size="sm"
                 colorScheme="blue"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                leftIcon={<FaUsers />}
+                leftIcon={<FaUsers fontSize="20px" />}
                 borderRadius="none"
                 onClick={addRolesHandler}
               >
@@ -399,6 +399,7 @@ const UserRole = () => {
                   getRolesHandler={getRolesHandler}
                   editData={editData}
                   disableEdit={disableEdit}
+                  // reset={reset}
                 />
               )}
 
@@ -487,7 +488,6 @@ const DrawerComponent = (props) => {
     formState: { errors, isValid },
     setValue,
     watch,
-    reset,
   } = useForm({
     resolver: yupResolver(schema),
     mode: 'onChange',
@@ -514,7 +514,7 @@ const DrawerComponent = (props) => {
           })
           .catch((err) => {
             ToastComponent('Error', err.response.data, 'error', toast)
-            // data.formData.id = "";
+            data.formData.id = ''
           })
       } else {
         const res = await request

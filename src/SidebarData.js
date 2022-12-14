@@ -11,13 +11,30 @@ export const sidebarData = [
             },
             {
                 id: 2,
-                subname: 'Lot Management',
-                path: '/setup/lot-management',
+                subname: 'Materials Management',
+                path: '/setup/materials-management',
             },
             {
                 id: 3,
-                subname: 'Raw Materials',
-                path: '/maincontent/setup/raw-materials',
+                subname: 'Item Category',
+                path: '/setup/item-category',
+            },
+            {
+                id: 4,
+                subname: 'Suppliers',
+                path: '/setup/suppliers-management',
+
+            },
+            {
+                id: 5,
+                subname: 'Customers',
+                path: '/setup/customers-management',
+
+            },
+            {
+                id: 6,
+                subname: 'Lot Management',
+                path: '/setup/lot-management',
 
             }
         ]

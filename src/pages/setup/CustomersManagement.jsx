@@ -14,7 +14,6 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  InputRightElement,
   Select,
   Skeleton,
   Stack,
@@ -43,12 +42,10 @@ import { useForm } from 'react-hook-form'
 import { AiTwotoneEdit } from 'react-icons/ai'
 import { GiChoice } from 'react-icons/gi'
 import { FaSearch } from 'react-icons/fa'
-import { VscEye, VscEyeClosed } from 'react-icons/vsc'
-import { SlUserFollow } from 'react-icons/sl'
+import { ImUserPlus } from 'react-icons/im'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
-
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { decodeUser } from '../../services/decode-user'
@@ -62,8 +59,8 @@ import {
   PaginationPageGroup,
 } from '@ajna/pagination'
 
-const UserAccount = () => {
-  const [users, setUsers] = useState([])
+const CustomersManagement = () => {
+  const [customers, setCustomers] = useState([])
   const [editData, setEditData] = useState([])
   const [status, setStatus] = useState(true)
   const [search, setSearch] = useState('')
@@ -74,9 +71,10 @@ const UserAccount = () => {
   const [pageTotal, setPageTotal] = useState(undefined)
   const [disableEdit, setDisableEdit] = useState(false)
 
-  const fetchUserApi = async (pageNumber, pageSize, status, search) => {
+  // FETCH API SUPPLIER CATEGORY:
+  const fetchCustomerApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
-      `User/GetAllUserWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+      `Supplier/GetAllSupplierithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
     )
 
     return response.data
@@ -101,23 +99,6 @@ const UserAccount = () => {
     initialState: { currentPage: 1, pageSize: 5 },
   })
 
-  //SHOW USER DATA----
-  const getUserHandler = () => {
-    fetchUserApi(currentPage, pageSize, status, search).then((res) => {
-      setIsLoading(false)
-      setUsers(res)
-      setPageTotal(res.totalCount)
-    })
-  }
-
-  useEffect(() => {
-    getUserHandler()
-
-    return () => {
-      setUsers([])
-    }
-  }, [currentPage, pageSize, status, search])
-
   const handlePageChange = (nextPage) => {
     setCurrentPage(nextPage)
   }
@@ -134,38 +115,55 @@ const UserAccount = () => {
 
   const changeStatusHandler = (id, isActive) => {
     let routeLabel
+    console.log(id)
+    console.log(isActive)
     if (isActive) {
-      routeLabel = 'InactiveUser'
+      routeLabel = 'InActiveSupplier'
     } else {
-      routeLabel = 'ActivateUser'
+      routeLabel = 'ActivateSupplier'
     }
 
     request
-      .put(`/User/${routeLabel}`, { id: id })
+      .put(`Supplier/${routeLabel}`, { id: id })
       .then((res) => {
         ToastComponent('Success', 'Status updated', 'success', toast)
-        getUserHandler()
+        getCustomerHandler()
       })
       .catch((err) => {
         console.log(err)
       })
-    console.log(routeLabel)
   }
 
+  //SHOW SUPPLIER CATEGORY DATA----
+  const getCustomerHandler = () => {
+    fetchCustomerApi(currentPage, pageSize, status, search).then((res) => {
+      setIsLoading(false)
+      setCustomers(res)
+      setPageTotal(res.totalCount)
+    })
+  }
+
+  useEffect(() => {
+    getCustomerHandler()
+
+    return () => {
+      setCustomers([])
+    }
+  }, [currentPage, pageSize, status, search])
+
+  // SEARCH
   const searchHandler = (inputValue) => {
     setSearch(inputValue)
     console.log(inputValue)
   }
 
-  //ADD USER HANDLER---
-  const addUserHandler = () => {
+  //ADD SUPPLIER CATEGORY HANDLER---
+  const addCustomerHandler = () => {
     setEditData({
       id: '',
-      fullName: '',
-      userName: '',
-      password: '',
-      userRoleId: '',
-      departmentId: '',
+      supplierCode: '',
+      supplierName: '',
+      supplierAddress: '',
       addedBy: currentUser.userName,
       modifiedBy: '',
     })
@@ -173,21 +171,21 @@ const UserAccount = () => {
     setDisableEdit(false)
   }
 
-  //EDIT USER--
-  const editUserHandler = (user) => {
+  //EDIT SUPPLIER CATEGORY--
+  const editCustomerHandler = (supplier) => {
     setDisableEdit(true)
-    setEditData(user)
+    setEditData(supplier)
     onOpen()
+    // console.log(mod.mainMenu)
   }
-  //FOR DRAWER
-  const { isOpen, onOpen, onClose } = useDisclosure()
 
-  // console.log(status);
+  //FOR DRAWER (Drawer / Drawer Tagging)
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (
     <Flex
       color="fontColor"
-      h="auto"
+      h="full"
       w="full"
       flexDirection="column"
       p={2}
@@ -207,7 +205,7 @@ const UserAccount = () => {
                   borderRadius="none"
                   size="sm"
                   type="text"
-                  placeholder="Search: Username"
+                  placeholder="Search: Customer Name"
                   borderColor="gray.400"
                   _hover={{ borderColor: 'gray.400' }}
                   onChange={(e) => searchHandler(e.target.value)}
@@ -228,7 +226,7 @@ const UserAccount = () => {
           </Flex>
 
           <Flex w="full" flexDirection="column" gap={2}>
-            <PageScroll maxHeight="350px">
+            <PageScroll>
               {isLoading ? (
                 <Stack width="full">
                   <Skeleton height="20px" />
@@ -253,16 +251,25 @@ const UserAccount = () => {
                         ID
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Fullname
+                        Customer Code
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Username
+                        Customer Name
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Department
+                        Type
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        User Role
+                        Company
+                      </Th>
+                      <Th color="#D6D6D6" fontSize="10px">
+                        Mobile Name
+                      </Th>
+                      <Th color="#D6D6D6" fontSize="10px">
+                        Leadman
+                      </Th>
+                      <Th color="#D6D6D6" fontSize="10px">
+                        Address
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Added By
@@ -276,73 +283,84 @@ const UserAccount = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {users.user?.map((user, i) => (
+                    {customers?.supplier?.map((sup, i) => (
                       <Tr key={i}>
-                        <Td fontSize="11px">{user.id}</Td>
-                        <Td fontSize="11px">{user.fullName}</Td>
-                        <Td fontSize="11px">{user.userName}</Td>
-                        <Td fontSize="11px">{user.department}</Td>
-                        <Td fontSize="11px">{user.userRole}</Td>
-                        <Td fontSize="11px">{user.addedBy}</Td>
-                        <Td fontSize="11px">{user.dateAdded}</Td>
+                        <Td fontSize="11px">{sup.id}</Td>
+                        <Td fontSize="11px">{sup.supplierCode}</Td>
+                        <Td fontSize="11px">{sup.supplierName}</Td>
+                        <Td></Td>
+                        <Td></Td>
+                        <Td></Td>
+                        <Td></Td>
+                        <Td fontSize="11px">{sup.supplierAddress}</Td>
+                        <Td fontSize="11px">{sup.addedBy}</Td>
+                        <Td fontSize="11px">{sup.dateAdded}</Td>
 
                         <Td pl={0}>
-                          <HStack>
-                            <Button
-                              bg="none"
-                              onClick={() => editUserHandler(user)}
-                            >
-                              <AiTwotoneEdit />
-                            </Button>
+                          <Flex>
+                            <HStack>
+                              <Button
+                                onClick={() => editCustomerHandler(sup)}
+                                size="sm"
+                                colorScheme="green"
+                                title="Edit"
+                              >
+                                <AiTwotoneEdit />
+                              </Button>
 
-                            <Popover>
-                              {({ onClose }) => (
-                                <>
-                                  <PopoverTrigger>
-                                    <Button p={0} bg="none">
-                                      <GiChoice />
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <Portal>
-                                    <PopoverContent bg="primary" color="#fff">
-                                      <PopoverArrow bg="primary" />
-                                      <PopoverCloseButton />
-                                      <PopoverHeader>
-                                        Confirmation!
-                                      </PopoverHeader>
-                                      <PopoverBody>
-                                        <VStack onClick={onClose}>
-                                          {user.isActive === true ? (
-                                            <Text>
-                                              Are you sure you want to set this
-                                              user account inactive?
-                                            </Text>
-                                          ) : (
-                                            <Text>
-                                              Are you sure you want to set this
-                                              user account active?
-                                            </Text>
-                                          )}
-                                          <Button
-                                            colorScheme="green"
-                                            size="sm"
-                                            onClick={() =>
-                                              changeStatusHandler(
-                                                user.id,
-                                                user.isActive,
-                                              )
-                                            }
-                                          >
-                                            Yes
-                                          </Button>
-                                        </VStack>
-                                      </PopoverBody>
-                                    </PopoverContent>
-                                  </Portal>
-                                </>
-                              )}
-                            </Popover>
-                          </HStack>
+                              <Popover>
+                                {({ onClose }) => (
+                                  <>
+                                    <PopoverTrigger>
+                                      <Button
+                                        size="sm"
+                                        colorScheme="red"
+                                        title="Active/Inactive"
+                                      >
+                                        <GiChoice />
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <Portal>
+                                      <PopoverContent bg="primary" color="#fff">
+                                        <PopoverArrow bg="primary" />
+                                        <PopoverCloseButton />
+                                        <PopoverHeader>
+                                          Confirmation!
+                                        </PopoverHeader>
+                                        <PopoverBody>
+                                          <VStack onClick={onClose}>
+                                            {sup.isActive === true ? (
+                                              <Text>
+                                                Are you sure you want to set
+                                                this Supplier inactive?
+                                              </Text>
+                                            ) : (
+                                              <Text>
+                                                Are you sure you want to set
+                                                this Supplier active?
+                                              </Text>
+                                            )}
+                                            <Button
+                                              colorScheme="green"
+                                              size="sm"
+                                              onClick={() =>
+                                                changeStatusHandler(
+                                                  sup.id,
+                                                  sup.isActive,
+                                                )
+                                              }
+                                            >
+                                              Yes
+                                            </Button>
+                                          </VStack>
+                                        </PopoverBody>
+                                      </PopoverContent>
+                                    </Portal>
+                                  </>
+                                )}
+                              </Popover>
+                            </HStack>
+                          </Flex>
                         </Td>
                       </Tr>
                     ))}
@@ -351,17 +369,17 @@ const UserAccount = () => {
               )}
             </PageScroll>
 
-            <Flex justifyContent="space-between">
+            <Flex justifyContent="space-between" mt={3}>
               <Button
                 size="sm"
                 colorScheme="blue"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                leftIcon={<SlUserFollow fontSize="18px" />}
+                leftIcon={<ImUserPlus fontSize="20px" />}
                 borderRadius="none"
-                onClick={addUserHandler}
+                onClick={addCustomerHandler}
               >
-                New User
+                New Customer
               </Button>
 
               {/* PROPS */}
@@ -369,8 +387,8 @@ const UserAccount = () => {
                 <DrawerComponent
                   isOpen={isOpen}
                   onClose={onClose}
-                  fetchUserApi={fetchUserApi}
-                  getUserHandler={getUserHandler}
+                  fetchCustomerApi={fetchCustomerApi}
+                  getCustomerHandler={getCustomerHandler}
                   editData={editData}
                   disableEdit={disableEdit}
                 />
@@ -419,8 +437,10 @@ const UserAccount = () => {
                       </PaginationNext>
                       <Select
                         onChange={handlePageSizeChange}
-                        bg="#fff"
-                        size="sm"
+                        bg="#FFFFFF"
+                        // size="sm"
+                        mb={2}
+                        variant="outline"
                       >
                         <option value={Number(5)}>5</option>
                         <option value={Number(10)}>10</option>
@@ -439,33 +459,21 @@ const UserAccount = () => {
   )
 }
 
-export default UserAccount
+export default CustomersManagement
 
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    fullName: yup.string().required('Fullname is required'),
-    userName: yup
-      .string()
-      .required('Username is required')
-      .min(5, 'Username must be at least 5 characters'),
-    password: yup
-      .string()
-      .required('Password is required')
-      .min(5, 'Password must be at least 5 characters'),
-    userRoleId: yup.string().required('User Role is required'),
-    departmentId: yup.string().required('Department is required'),
+    supplierCode: yup.string().required('Supplier Code is required'),
+    supplierName: yup.string().required('Supplier Name is required'),
+    supplierAddress: yup.string().required('Supplier Address is required'),
   }),
 })
 
 const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
-  const { isOpen, onClose, getUserHandler, editData, disableEdit } = props
-
-  const [showPassword, setShowPassword] = useState(false)
-  const [roles, setRoles] = useState([])
-  const [departments, setDepartment] = useState([])
+  const { isOpen, onClose, getCustomerHandler, editData, disableEdit } = props
   const toast = useToast()
 
   const {
@@ -480,52 +488,29 @@ const DrawerComponent = (props) => {
     defaultValues: {
       formData: {
         id: '',
-        fullName: '',
-        userName: '',
-        password: '',
-        userRoleId: '',
-        departmentId: '',
+        supplierCode: '',
+        supplierName: '',
+        supplierAddress: '',
         addedBy: currentUser?.userName,
         modifiedBy: '',
       },
     },
   })
 
-  const fetchRoles = async () => {
-    try {
-      const res = await request.get('Role/GetAllActiveRoles')
-      setRoles(res.data)
-    } catch (error) {}
-  }
-
-  useEffect(() => {
-    try {
-      fetchRoles()
-    } catch (error) {}
-  }, [])
-
-  const fetchDepartment = async () => {
-    try {
-      const res = await request.get('User/GetAllActiveDepartment')
-      setDepartment(res.data)
-    } catch (error) {}
-  }
-
-  useEffect(() => {
-    try {
-      fetchDepartment()
-    } catch (error) {}
-  }, [])
-
   const submitHandler = async (data) => {
     try {
       if (data.formData.id === '') {
         delete data.formData['id']
         const res = await request
-          .post(`User/AddNewUser`, data.formData)
+          .post('Supplier/AddNewSupplier', data.formData)
           .then((res) => {
-            ToastComponent('Success', 'New user created!', 'success', toast)
-            getUserHandler()
+            ToastComponent(
+              'Success',
+              'Supplier Category created!',
+              'success',
+              toast,
+            )
+            getCustomerHandler()
             onClose()
           })
           .catch((err) => {
@@ -534,10 +519,10 @@ const DrawerComponent = (props) => {
           })
       } else {
         const res = await request
-          .put(`User/UpdateUserInfo`, data.formData)
+          .put(`Supplier/UpdateSupplier`, data.formData)
           .then((res) => {
-            ToastComponent('Success', 'User Updated', 'success', toast)
-            getUserHandler()
+            ToastComponent('Success', 'Supplier Updated', 'success', toast)
+            getCustomerHandler()
             onClose(onClose)
           })
           .catch((error) => {
@@ -552,19 +537,15 @@ const DrawerComponent = (props) => {
     } catch (err) {}
   }
 
-  // console.log(editData);
-
   useEffect(() => {
     if (editData.id) {
       setValue(
         'formData',
         {
           id: editData.id,
-          fullName: editData?.fullName,
-          userName: editData?.userName,
-          password: editData?.password,
-          userRoleId: editData?.userRoleId,
-          departmentId: editData?.departmentId,
+          supplierCode: editData?.supplierCode,
+          supplierName: editData?.supplierName,
+          supplierAddress: editData?.supplierAddress,
           modifiedBy: currentUser.userName,
         },
         { shouldValidate: true },
@@ -572,7 +553,7 @@ const DrawerComponent = (props) => {
     }
   }, [editData])
 
-  console.log(watch('formData.userRoleId'))
+  console.log(watch('formData'))
 
   return (
     <>
@@ -580,104 +561,46 @@ const DrawerComponent = (props) => {
         <DrawerOverlay />
         <form onSubmit={handleSubmit(submitHandler)}>
           <DrawerContent>
-            <DrawerHeader borderBottomWidth="1px">User Form</DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px">Supplier Form</DrawerHeader>
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">
                 <Box>
-                  <FormLabel>Full Name:</FormLabel>
+                  <FormLabel>Supplier Code:</FormLabel>
                   <Input
-                    {...register('formData.fullName')}
-                    placeholder="Please enter Fullname"
-                    autoFocus
-                    autoComplete="off"
-                  />
-                  <Text color="red" fontSize="xs">
-                    {errors.formData?.fullName?.message}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <FormLabel>Username:</FormLabel>
-                  <Input
-                    {...register('formData.userName')}
-                    placeholder="Please enter Fullname"
+                    {...register('formData.supplierCode')}
+                    placeholder="Please enter Supplier Code"
                     autoComplete="off"
                     disabled={disableEdit}
                     readOnly={disableEdit}
                     _disabled={{ color: 'black' }}
                     bgColor={disableEdit && 'gray.300'}
+                    autoFocus
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.userName?.message}
+                    {errors.formData?.supplierCode?.message}
                   </Text>
                 </Box>
-
                 <Box>
-                  <FormLabel>Password:</FormLabel>
-                  <InputGroup>
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      {...register('formData.password')}
-                      placeholder="Please enter Password"
-                      autoComplete="off"
-                    />
-                    <InputRightElement>
-                      <Button
-                        bg="none"
-                        onClick={() => setShowPassword(!showPassword)}
-                        size="sm"
-                      >
-                        {showPassword ? <VscEye /> : <VscEyeClosed />}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
+                  <FormLabel>Supplier Name:</FormLabel>
+                  <Input
+                    {...register('formData.supplierName')}
+                    placeholder="Please enter Supplier Name"
+                    autoComplete="off"
+                  />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.password?.message}
+                    {errors.formData?.supplierName?.message}
                   </Text>
                 </Box>
-
-                <Flex mt={3}></Flex>
-
                 <Box>
-                  <FormLabel>Role:</FormLabel>
-                  {roles.length > 0 ? (
-                    <Select
-                      {...register('formData.userRoleId')}
-                      placeholder="Select Role"
-                    >
-                      {roles.map((rol) => (
-                        <option key={rol.id} value={rol.id}>
-                          {rol.roleName}
-                        </option>
-                      ))}
-                    </Select>
-                  ) : (
-                    'loading'
-                  )}
+                  <FormLabel>Supplier Address:</FormLabel>
+                  <Input
+                    {...register('formData.supplierAddress')}
+                    placeholder="Please enter Supplier Address"
+                    autoComplete="off"
+                  />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.userRoleId?.message}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <FormLabel>Department:</FormLabel>
-                  {departments.length > 0 ? (
-                    <Select
-                      {...register('formData.departmentId')}
-                      placeholder="Select Department"
-                    >
-                      {departments.map((dept) => (
-                        <option key={dept.id} value={dept.id}>
-                          {dept.departmentName}
-                        </option>
-                      ))}
-                    </Select>
-                  ) : (
-                    'loading'
-                  )}
-                  <Text color="red" fontSize="xs">
-                    {errors.formData?.departmentId?.message}
+                    {errors.formData?.supplierAddress?.message}
                   </Text>
                 </Box>
               </Stack>
@@ -686,7 +609,7 @@ const DrawerComponent = (props) => {
               <Button variant="outline" mr={3} onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" colorScheme="blue" disabled={!isValid}>
+              <Button type="submit" disabled={!isValid} colorScheme="blue">
                 Submit
               </Button>
             </DrawerFooter>

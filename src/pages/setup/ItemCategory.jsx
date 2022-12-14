@@ -41,8 +41,8 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { AiTwotoneEdit } from 'react-icons/ai'
 import { GiChoice } from 'react-icons/gi'
-import { BsBuilding } from 'react-icons/bs'
 import { FaSearch } from 'react-icons/fa'
+import { BiCategory } from 'react-icons/bi'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
@@ -59,8 +59,8 @@ import {
   PaginationPageGroup,
 } from '@ajna/pagination'
 
-const Department = () => {
-  const [department, setDeparment] = useState([])
+const ItemCategory = () => {
+  const [itemCategory, setItemCategory] = useState([])
   const [editData, setEditData] = useState([])
   const [status, setStatus] = useState(true)
   const [search, setSearch] = useState('')
@@ -71,9 +71,10 @@ const Department = () => {
   const [pageTotal, setPageTotal] = useState(undefined)
   const [disableEdit, setDisableEdit] = useState(false)
 
-  const fetchUserApi = async (pageNumber, pageSize, status, search) => {
+  // FETCH API ITEM CATEGORY:
+  const fetchItemCategoryApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
-      `User/GetAllDepartmentWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+      `Material/GetAllItemCategoryWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
     )
 
     return response.data
@@ -98,23 +99,6 @@ const Department = () => {
     initialState: { currentPage: 1, pageSize: 5 },
   })
 
-  //SHOW USER DATA----
-  const getUserHandler = () => {
-    fetchUserApi(currentPage, pageSize, status, search).then((res) => {
-      setIsLoading(false)
-      setDeparment(res)
-      setPageTotal(res.totalCount)
-    })
-  }
-
-  useEffect(() => {
-    getUserHandler()
-
-    return () => {
-      setDeparment([])
-    }
-  }, [currentPage, pageSize, status, search])
-
   const handlePageChange = (nextPage) => {
     setCurrentPage(nextPage)
   }
@@ -124,41 +108,60 @@ const Department = () => {
     setPageSize(pageSize)
   }
 
+  //STATUS
   const statusHandler = (data) => {
     setStatus(data)
   }
 
-  const changeStatusHandler = (id, status) => {
+  const changeStatusHandler = (id, isActive) => {
     let routeLabel
-    if (status) {
-      routeLabel = 'InActiveDepartment'
+    console.log(id)
+    console.log(isActive)
+    if (isActive) {
+      routeLabel = 'InActiveItemCategory'
     } else {
-      routeLabel = 'ActivateDepartment'
+      routeLabel = 'ActivateItemCategory'
     }
 
     request
-      .put(`/User/${routeLabel}`, { id: id })
+      .put(`Material/${routeLabel}`, { id: id })
       .then((res) => {
         ToastComponent('Success', 'Status updated', 'success', toast)
-        getUserHandler()
+        getItemCategoryHandler()
       })
       .catch((err) => {
         console.log(err)
       })
-    console.log(routeLabel)
   }
 
+  //SHOW ITEM CATEGORY DATA----
+  const getItemCategoryHandler = () => {
+    fetchItemCategoryApi(currentPage, pageSize, status, search).then((res) => {
+      setIsLoading(false)
+      setItemCategory(res)
+      setPageTotal(res.totalCount)
+    })
+  }
+
+  useEffect(() => {
+    getItemCategoryHandler()
+
+    return () => {
+      setItemCategory([])
+    }
+  }, [currentPage, pageSize, status, search])
+
+  // SEARCH
   const searchHandler = (inputValue) => {
     setSearch(inputValue)
     console.log(inputValue)
   }
 
-  //ADD USER HANDLER---
-  const addUserHandler = () => {
+  //ADD ITEM CATEGORY HANDLER---
+  const addItemCategoryHandler = () => {
     setEditData({
       id: '',
-      departmentCode: '',
-      departmentName: '',
+      itemCategoryName: '',
       addedBy: currentUser.userName,
       modifiedBy: '',
     })
@@ -166,16 +169,16 @@ const Department = () => {
     setDisableEdit(false)
   }
 
-  //EDIT USER--
-  const editUserHandler = (user) => {
+  //EDIT ITEM CATEGORY--
+  const editItemCategoryHandler = (category) => {
     setDisableEdit(true)
-    setEditData(user)
+    setEditData(category)
     onOpen()
+    // console.log(mod.mainMenu)
   }
-  //FOR DRAWER
-  const { isOpen, onOpen, onClose } = useDisclosure()
 
-  // console.log(status);
+  //FOR DRAWER (Drawer / Drawer Tagging)
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (
     <Flex
@@ -199,9 +202,8 @@ const Department = () => {
                 <Input
                   borderRadius="none"
                   size="sm"
-                  fontSize="10px"
                   type="text"
-                  placeholder="Search: Department Name"
+                  placeholder="Search: Category Name"
                   borderColor="gray.400"
                   _hover={{ borderColor: 'gray.400' }}
                   onChange={(e) => searchHandler(e.target.value)}
@@ -247,10 +249,7 @@ const Department = () => {
                         ID
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Department Code
-                      </Th>
-                      <Th color="#D6D6D6" fontSize="10px">
-                        Department Name
+                        Category Name
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Added By
@@ -264,70 +263,72 @@ const Department = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {department.department?.map((dep, i) => (
+                    {itemCategory?.category?.map((cat, i) => (
                       <Tr key={i}>
-                        <Td fontSize="11px">{dep.id}</Td>
-                        <Td fontSize="11px">{dep.departmentCode}</Td>
-                        <Td fontSize="11px">{dep.departmentName}</Td>
-                        <Td fontSize="11px">{dep.addedBy}</Td>
-                        <Td fontSize="11px">{dep.dateAdded}</Td>
+                        <Td fontSize="11px">{cat.id}</Td>
+                        <Td fontSize="11px">{cat.itemCategoryName}</Td>
+                        <Td fontSize="11px">{cat.addedBy}</Td>
+                        <Td fontSize="11px">{cat.dateAdded}</Td>
 
                         <Td pl={0}>
-                          <HStack>
-                            <Button
-                              bg="none"
-                              onClick={() => editUserHandler(dep)}
-                            >
-                              <AiTwotoneEdit />
-                            </Button>
-                            <Popover>
-                              {({ onClose }) => (
-                                <>
-                                  <PopoverTrigger>
-                                    <Button p={0} bg="none">
-                                      <GiChoice />
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <Portal>
-                                    <PopoverContent bg="primary" color="#fff">
-                                      <PopoverArrow bg="primary" />
-                                      <PopoverCloseButton />
-                                      <PopoverHeader>
-                                        Confirmation!
-                                      </PopoverHeader>
-                                      <PopoverBody>
-                                        <VStack onClick={onClose}>
-                                          {dep.isActive === true ? (
-                                            <Text>
-                                              Are you sure you want to set this
-                                              department inactive?
-                                            </Text>
-                                          ) : (
-                                            <Text>
-                                              Are you sure you want to set this
-                                              department active?
-                                            </Text>
-                                          )}
-                                          <Button
-                                            colorScheme="green"
-                                            size="sm"
-                                            onClick={() =>
-                                              changeStatusHandler(
-                                                dep.id,
-                                                dep.isActive,
-                                              )
-                                            }
-                                          >
-                                            Yes
-                                          </Button>
-                                        </VStack>
-                                      </PopoverBody>
-                                    </PopoverContent>
-                                  </Portal>
-                                </>
-                              )}
-                            </Popover>
-                          </HStack>
+                          <Flex>
+                            <HStack>
+                              <Button
+                                bg="none"
+                                onClick={() => editItemCategoryHandler(cat)}
+                              >
+                                <AiTwotoneEdit />
+                              </Button>
+
+                              <Popover>
+                                {({ onClose }) => (
+                                  <>
+                                    <PopoverTrigger>
+                                      <Button p={0} bg="none">
+                                        <GiChoice />
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <Portal>
+                                      <PopoverContent bg="primary" color="#fff">
+                                        <PopoverArrow bg="primary" />
+                                        <PopoverCloseButton />
+                                        <PopoverHeader>
+                                          Confirmation!
+                                        </PopoverHeader>
+                                        <PopoverBody>
+                                          <VStack onClick={onClose}>
+                                            {cat.isActive === true ? (
+                                              <Text>
+                                                Are you sure you want to set
+                                                this Item Category inactive?
+                                              </Text>
+                                            ) : (
+                                              <Text>
+                                                Are you sure you want to set
+                                                this Item Category active?
+                                              </Text>
+                                            )}
+                                            <Button
+                                              colorScheme="green"
+                                              size="sm"
+                                              onClick={() =>
+                                                changeStatusHandler(
+                                                  cat.id,
+                                                  cat.isActive,
+                                                )
+                                              }
+                                            >
+                                              Yes
+                                            </Button>
+                                          </VStack>
+                                        </PopoverBody>
+                                      </PopoverContent>
+                                    </Portal>
+                                  </>
+                                )}
+                              </Popover>
+                            </HStack>
+                          </Flex>
                         </Td>
                       </Tr>
                     ))}
@@ -336,17 +337,17 @@ const Department = () => {
               )}
             </PageScroll>
 
-            <Flex justifyContent="space-between">
+            <Flex justifyContent="space-between" mt={3}>
               <Button
                 size="sm"
                 colorScheme="blue"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                leftIcon={<BsBuilding fontSize="20px" />}
+                leftIcon={<BiCategory fontSize="20px" />}
                 borderRadius="none"
-                onClick={addUserHandler}
+                onClick={addItemCategoryHandler}
               >
-                New Department
+                New Item Category
               </Button>
 
               {/* PROPS */}
@@ -354,8 +355,8 @@ const Department = () => {
                 <DrawerComponent
                   isOpen={isOpen}
                   onClose={onClose}
-                  fetchUserApi={fetchUserApi}
-                  getUserHandler={getUserHandler}
+                  fetchItemCategoryApi={fetchItemCategoryApi}
+                  getItemCategoryHandler={getItemCategoryHandler}
                   editData={editData}
                   disableEdit={disableEdit}
                 />
@@ -405,8 +406,9 @@ const Department = () => {
                       <Select
                         onChange={handlePageSizeChange}
                         bg="#FFFFFF"
-                        size="sm"
+                        // size="sm"
                         mb={2}
+                        variant="outline"
                       >
                         <option value={Number(5)}>5</option>
                         <option value={Number(10)}>10</option>
@@ -425,20 +427,25 @@ const Department = () => {
   )
 }
 
-export default Department
+export default ItemCategory
 
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    departmentCode: yup.string().required('Department Code is required'),
-    departmentName: yup.string().required('Department Name is required'),
+    itemCategoryName: yup.string().required('Item Category name is required'),
   }),
 })
 
 const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
-  const { isOpen, onClose, getUserHandler, editData, disableEdit } = props
+  const {
+    isOpen,
+    onClose,
+    getItemCategoryHandler,
+    editData,
+    disableEdit,
+  } = props
   const toast = useToast()
 
   const {
@@ -453,9 +460,7 @@ const DrawerComponent = (props) => {
     defaultValues: {
       formData: {
         id: '',
-        departmentCode: '',
-        departmentName: '',
-        password: '',
+        itemCategoryName: '',
         addedBy: currentUser?.userName,
         modifiedBy: '',
       },
@@ -467,15 +472,15 @@ const DrawerComponent = (props) => {
       if (data.formData.id === '') {
         delete data.formData['id']
         const res = await request
-          .post('User/AddNewDepartment', data.formData)
+          .post('Material/AddNewItemCategories', data.formData)
           .then((res) => {
             ToastComponent(
               'Success',
-              'New department created!',
+              'New Item Category created!',
               'success',
               toast,
             )
-            getUserHandler()
+            getItemCategoryHandler()
             onClose()
           })
           .catch((err) => {
@@ -484,10 +489,10 @@ const DrawerComponent = (props) => {
           })
       } else {
         const res = await request
-          .put(`User/UpdateDepartment`, data.formData)
+          .put(`Material/UpdateItemCategories`, data.formData)
           .then((res) => {
-            ToastComponent('Success', 'Department Updated', 'success', toast)
-            getUserHandler()
+            ToastComponent('Success', 'Item Category Updated', 'success', toast)
+            getItemCategoryHandler()
             onClose(onClose)
           })
           .catch((error) => {
@@ -502,16 +507,13 @@ const DrawerComponent = (props) => {
     } catch (err) {}
   }
 
-  console.log(editData)
-
   useEffect(() => {
     if (editData.id) {
       setValue(
         'formData',
         {
           id: editData.id,
-          departmentCode: editData?.departmentCode,
-          departmentName: editData?.departmentName,
+          itemCategoryName: editData?.itemCategoryName,
           modifiedBy: currentUser.userName,
         },
         { shouldValidate: true },
@@ -519,7 +521,7 @@ const DrawerComponent = (props) => {
     }
   }, [editData])
 
-  console.log(watch('formData.id'))
+  console.log(watch('formData'))
 
   return (
     <>
@@ -527,36 +529,22 @@ const DrawerComponent = (props) => {
         <DrawerOverlay />
         <form onSubmit={handleSubmit(submitHandler)}>
           <DrawerContent>
-            <DrawerHeader borderBottomWidth="1px">Department Form</DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px">
+              Item Category Form
+            </DrawerHeader>
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">
                 <Box>
-                  <FormLabel>Department Code:</FormLabel>
+                  <FormLabel>Category Code:</FormLabel>
                   <Input
-                    {...register('formData.departmentCode')}
-                    placeholder="Please enter Department Code"
+                    {...register('formData.itemCategoryName')}
+                    placeholder="Please enter Category name"
                     autoComplete="off"
                     autoFocus
-                    disabled={disableEdit}
-                    readOnly={disableEdit}
-                    _disabled={{ color: 'black' }}
-                    bgColor={disableEdit && 'gray.300'}
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.departmentCode?.message}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <FormLabel>Department Name:</FormLabel>
-                  <Input
-                    {...register('formData.departmentName')}
-                    placeholder="Please enter Department Name"
-                    autoComplete="off"
-                  />
-                  <Text color="red" fontSize="xs">
-                    {errors.formData?.departmentName?.message}
+                    {errors.formData?.itemCategoryName?.message}
                   </Text>
                 </Box>
               </Stack>
@@ -565,7 +553,7 @@ const DrawerComponent = (props) => {
               <Button variant="outline" mr={3} onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" colorScheme="blue" disabled={!isValid}>
+              <Button type="submit" disabled={!isValid} colorScheme="blue">
                 Submit
               </Button>
             </DrawerFooter>

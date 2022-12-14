@@ -1,19 +1,19 @@
-import { Flex, useMediaQuery } from "@chakra-ui/react";
-import React, { useState, useEffect } from "react";
-import MainContent from "./MainContent";
-import Header from "./Header";
-import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
-import { Outlet } from "react-router-dom";
+import { Flex, useMediaQuery } from '@chakra-ui/react'
+import React, { useState, useEffect } from 'react'
+import MainContent from './MainContent'
+import Header from './Header'
+import Sidebar from './Sidebar'
+import Navbar from './Navbar'
+import { Outlet } from 'react-router-dom'
 
 const MainContainer = () => {
-  const [navBarData, setNavbarData] = useState([]);
-  const [isMobile] = useMediaQuery("(max-width: 1240px)");
-  const [sidebarHandler, setSidebarHandler] = useState(false);
+  const [navBarData, setNavbarData] = useState([])
+  const [isMobile] = useMediaQuery('(max-width: 1240px)')
+  const [sidebarHandler, setSidebarHandler] = useState(false)
 
   useEffect(() => {
-    setSidebarHandler(isMobile);
-  }, [isMobile]);
+    setSidebarHandler(isMobile)
+  }, [isMobile])
 
   return (
     <Flex bgColor="background" h="100vh">
@@ -25,7 +25,7 @@ const MainContainer = () => {
         <MainContent />
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default MainContainer;
+export default MainContainer

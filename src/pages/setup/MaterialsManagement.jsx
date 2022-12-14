@@ -44,7 +44,7 @@ import { AiTwotoneEdit } from 'react-icons/ai'
 import { GiChoice } from 'react-icons/gi'
 import { FaSearch } from 'react-icons/fa'
 import { VscEye, VscEyeClosed } from 'react-icons/vsc'
-import { SlUserFollow } from 'react-icons/sl'
+import { ImMeter } from 'react-icons/im'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
@@ -62,8 +62,8 @@ import {
   PaginationPageGroup,
 } from '@ajna/pagination'
 
-const UserAccount = () => {
-  const [users, setUsers] = useState([])
+const MaterialsManagement = () => {
+  const [materials, setMaterials] = useState([])
   const [editData, setEditData] = useState([])
   const [status, setStatus] = useState(true)
   const [search, setSearch] = useState('')
@@ -74,9 +74,10 @@ const UserAccount = () => {
   const [pageTotal, setPageTotal] = useState(undefined)
   const [disableEdit, setDisableEdit] = useState(false)
 
-  const fetchUserApi = async (pageNumber, pageSize, status, search) => {
+  // FETCH API MATERIALS:
+  const fetchMaterialApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
-      `User/GetAllUserWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+      `Material/GetAllMaterialWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
     )
 
     return response.data
@@ -101,23 +102,6 @@ const UserAccount = () => {
     initialState: { currentPage: 1, pageSize: 5 },
   })
 
-  //SHOW USER DATA----
-  const getUserHandler = () => {
-    fetchUserApi(currentPage, pageSize, status, search).then((res) => {
-      setIsLoading(false)
-      setUsers(res)
-      setPageTotal(res.totalCount)
-    })
-  }
-
-  useEffect(() => {
-    getUserHandler()
-
-    return () => {
-      setUsers([])
-    }
-  }, [currentPage, pageSize, status, search])
-
   const handlePageChange = (nextPage) => {
     setCurrentPage(nextPage)
   }
@@ -127,6 +111,23 @@ const UserAccount = () => {
     setPageSize(pageSize)
   }
 
+  //SHOW MAIN MENU DATA----
+  const getMaterialHandler = () => {
+    fetchMaterialApi(currentPage, pageSize, status, search).then((res) => {
+      setIsLoading(false)
+      setMaterials(res)
+      setPageTotal(res.totalCount)
+    })
+  }
+
+  useEffect(() => {
+    getMaterialHandler()
+
+    return () => {
+      setMaterials([])
+    }
+  }, [currentPage, pageSize, status, search])
+
   //STATUS
   const statusHandler = (data) => {
     setStatus(data)
@@ -134,38 +135,40 @@ const UserAccount = () => {
 
   const changeStatusHandler = (id, isActive) => {
     let routeLabel
+    console.log(id)
+    console.log(isActive)
     if (isActive) {
-      routeLabel = 'InactiveUser'
+      routeLabel = 'InActiveMaterial'
     } else {
-      routeLabel = 'ActivateUser'
+      routeLabel = 'ActivateMaterial'
     }
 
     request
-      .put(`/User/${routeLabel}`, { id: id })
+      .put(`Material/${routeLabel}`, { id: id })
       .then((res) => {
         ToastComponent('Success', 'Status updated', 'success', toast)
-        getUserHandler()
+        getMaterialHandler()
       })
       .catch((err) => {
         console.log(err)
       })
-    console.log(routeLabel)
   }
 
+  // SEARCH
   const searchHandler = (inputValue) => {
     setSearch(inputValue)
     console.log(inputValue)
   }
 
-  //ADD USER HANDLER---
-  const addUserHandler = () => {
+  //ADD MAIN MENU HANDLER---
+  const addMaterialHandler = () => {
     setEditData({
       id: '',
-      fullName: '',
-      userName: '',
-      password: '',
-      userRoleId: '',
-      departmentId: '',
+      itemCode: '',
+      itemDescription: '',
+      itemCategoryId: '',
+      uomId: '',
+      bufferLevel: '',
       addedBy: currentUser.userName,
       modifiedBy: '',
     })
@@ -173,21 +176,21 @@ const UserAccount = () => {
     setDisableEdit(false)
   }
 
-  //EDIT USER--
-  const editUserHandler = (user) => {
+  //EDIT ROLE--
+  const editMaterialHandler = (materials) => {
     setDisableEdit(true)
-    setEditData(user)
+    setEditData(materials)
     onOpen()
+    // console.log(mod.mainMenu)
   }
-  //FOR DRAWER
-  const { isOpen, onOpen, onClose } = useDisclosure()
 
-  // console.log(status);
+  //FOR DRAWER (Drawer / Drawer Tagging)
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (
     <Flex
       color="fontColor"
-      h="auto"
+      h="full"
       w="full"
       flexDirection="column"
       p={2}
@@ -207,7 +210,7 @@ const UserAccount = () => {
                   borderRadius="none"
                   size="sm"
                   type="text"
-                  placeholder="Search: Username"
+                  placeholder="Search: Item Code"
                   borderColor="gray.400"
                   _hover={{ borderColor: 'gray.400' }}
                   onChange={(e) => searchHandler(e.target.value)}
@@ -228,7 +231,7 @@ const UserAccount = () => {
           </Flex>
 
           <Flex w="full" flexDirection="column" gap={2}>
-            <PageScroll maxHeight="350px">
+            <PageScroll>
               {isLoading ? (
                 <Stack width="full">
                   <Skeleton height="20px" />
@@ -253,22 +256,25 @@ const UserAccount = () => {
                         ID
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Fullname
+                        Item Code
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Username
+                        Item Description
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Department
+                        Item Category
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        User Role
+                        UOM
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Added By
+                        Buffer Level
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Date Added
+                      </Th>
+                      <Th color="#D6D6D6" fontSize="10px">
+                        Added By
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Action
@@ -276,73 +282,76 @@ const UserAccount = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {users.user?.map((user, i) => (
+                    {materials?.materials?.map((mats, i) => (
                       <Tr key={i}>
-                        <Td fontSize="11px">{user.id}</Td>
-                        <Td fontSize="11px">{user.fullName}</Td>
-                        <Td fontSize="11px">{user.userName}</Td>
-                        <Td fontSize="11px">{user.department}</Td>
-                        <Td fontSize="11px">{user.userRole}</Td>
-                        <Td fontSize="11px">{user.addedBy}</Td>
-                        <Td fontSize="11px">{user.dateAdded}</Td>
+                        <Td fontSize="11px">{mats.id}</Td>
+                        <Td fontSize="11px">{mats.itemCode}</Td>
+                        <Td fontSize="11px">{mats.itemDescription}</Td>
+                        <Td fontSize="11px">{mats.itemCategory}</Td>
+                        <Td fontSize="11px">{mats.uom}</Td>
+                        <Td fontSize="11px">{mats.bufferLevel}</Td>
+                        <Td fontSize="11px">{mats.dateAdded}</Td>
+                        <Td fontSize="11px">{mats.addedBy}</Td>
 
                         <Td pl={0}>
-                          <HStack>
-                            <Button
-                              bg="none"
-                              onClick={() => editUserHandler(user)}
-                            >
-                              <AiTwotoneEdit />
-                            </Button>
+                          <Flex>
+                            <HStack>
+                              <Button
+                                bg="none"
+                                onClick={() => editMaterialHandler(mats)}
+                              >
+                                <AiTwotoneEdit />
+                              </Button>
 
-                            <Popover>
-                              {({ onClose }) => (
-                                <>
-                                  <PopoverTrigger>
-                                    <Button p={0} bg="none">
-                                      <GiChoice />
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <Portal>
-                                    <PopoverContent bg="primary" color="#fff">
-                                      <PopoverArrow bg="primary" />
-                                      <PopoverCloseButton />
-                                      <PopoverHeader>
-                                        Confirmation!
-                                      </PopoverHeader>
-                                      <PopoverBody>
-                                        <VStack onClick={onClose}>
-                                          {user.isActive === true ? (
-                                            <Text>
-                                              Are you sure you want to set this
-                                              user account inactive?
-                                            </Text>
-                                          ) : (
-                                            <Text>
-                                              Are you sure you want to set this
-                                              user account active?
-                                            </Text>
-                                          )}
-                                          <Button
-                                            colorScheme="green"
-                                            size="sm"
-                                            onClick={() =>
-                                              changeStatusHandler(
-                                                user.id,
-                                                user.isActive,
-                                              )
-                                            }
-                                          >
-                                            Yes
-                                          </Button>
-                                        </VStack>
-                                      </PopoverBody>
-                                    </PopoverContent>
-                                  </Portal>
-                                </>
-                              )}
-                            </Popover>
-                          </HStack>
+                              <Popover>
+                                {({ onClose }) => (
+                                  <>
+                                    <PopoverTrigger>
+                                      <Button p={0} bg="none">
+                                        <GiChoice />
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <Portal>
+                                      <PopoverContent bg="primary" color="#fff">
+                                        <PopoverArrow bg="primary" />
+                                        <PopoverCloseButton />
+                                        <PopoverHeader>
+                                          Confirmation!
+                                        </PopoverHeader>
+                                        <PopoverBody>
+                                          <VStack onClick={onClose}>
+                                            {mats.isActive === true ? (
+                                              <Text>
+                                                Are you sure you want to set
+                                                this Material inactive?
+                                              </Text>
+                                            ) : (
+                                              <Text>
+                                                Are you sure you want to set
+                                                this Material active?
+                                              </Text>
+                                            )}
+                                            <Button
+                                              colorScheme="green"
+                                              size="sm"
+                                              onClick={() =>
+                                                changeStatusHandler(
+                                                  mats.id,
+                                                  mats.isActive,
+                                                )
+                                              }
+                                            >
+                                              Yes
+                                            </Button>
+                                          </VStack>
+                                        </PopoverBody>
+                                      </PopoverContent>
+                                    </Portal>
+                                  </>
+                                )}
+                              </Popover>
+                            </HStack>
+                          </Flex>
                         </Td>
                       </Tr>
                     ))}
@@ -357,25 +366,12 @@ const UserAccount = () => {
                 colorScheme="blue"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                leftIcon={<SlUserFollow fontSize="18px" />}
+                leftIcon={<ImMeter fontSize="20px" />}
                 borderRadius="none"
-                onClick={addUserHandler}
+                onClick={addMaterialHandler}
               >
-                New User
+                New Material
               </Button>
-
-              {/* PROPS */}
-              {isOpen && (
-                <DrawerComponent
-                  isOpen={isOpen}
-                  onClose={onClose}
-                  fetchUserApi={fetchUserApi}
-                  getUserHandler={getUserHandler}
-                  editData={editData}
-                  disableEdit={disableEdit}
-                />
-              )}
-
               <Stack>
                 <Pagination
                   pagesCount={pagesCount}
@@ -419,8 +415,10 @@ const UserAccount = () => {
                       </PaginationNext>
                       <Select
                         onChange={handlePageSizeChange}
-                        bg="#fff"
-                        size="sm"
+                        bg="#FFFFFF"
+                        // size="sm"
+                        mb={2}
+                        variant="outline"
                       >
                         <option value={Number(5)}>5</option>
                         <option value={Number(10)}>10</option>
@@ -431,6 +429,18 @@ const UserAccount = () => {
                   </PaginationContainer>
                 </Pagination>
               </Stack>
+
+              {/* PROPS */}
+              {isOpen && (
+                <DrawerComponent
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  fetchMaterialApi={fetchMaterialApi}
+                  getMaterialHandler={getMaterialHandler}
+                  editData={editData}
+                  disableEdit={disableEdit}
+                />
+              )}
             </Flex>
           </Flex>
         </Flex>
@@ -439,33 +449,29 @@ const UserAccount = () => {
   )
 }
 
-export default UserAccount
+export default MaterialsManagement
 
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    fullName: yup.string().required('Fullname is required'),
-    userName: yup
-      .string()
-      .required('Username is required')
-      .min(5, 'Username must be at least 5 characters'),
-    password: yup
-      .string()
-      .required('Password is required')
-      .min(5, 'Password must be at least 5 characters'),
-    userRoleId: yup.string().required('User Role is required'),
-    departmentId: yup.string().required('Department is required'),
+    itemCode: yup.string().required('Item code is required'),
+    itemDescription: yup.string().required('Description is required'),
+    itemCategoryId: yup.string().required('Item Category is required'),
+    uomId: yup.string().required('UOM is required'),
+    bufferLevel: yup
+      .number()
+      .required('Buffer level is required')
+      .typeError('Must be a number'),
   }),
 })
 
 const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
-  const { isOpen, onClose, getUserHandler, editData, disableEdit } = props
+  const { isOpen, onClose, getMaterialHandler, editData, disableEdit } = props
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [roles, setRoles] = useState([])
-  const [departments, setDepartment] = useState([])
+  const [itemCategory, setItemCategory] = useState([])
+  const [uom, setUom] = useState([])
   const toast = useToast()
 
   const {
@@ -480,40 +486,40 @@ const DrawerComponent = (props) => {
     defaultValues: {
       formData: {
         id: '',
-        fullName: '',
-        userName: '',
-        password: '',
-        userRoleId: '',
-        departmentId: '',
+        itemCode: '',
+        itemDescription: '',
+        itemCategoryId: '',
+        uomId: '',
+        bufferLevel: '',
         addedBy: currentUser?.userName,
         modifiedBy: '',
       },
     },
   })
 
-  const fetchRoles = async () => {
+  const fetchItemCat = async () => {
     try {
-      const res = await request.get('Role/GetAllActiveRoles')
-      setRoles(res.data)
+      const res = await request.get('Material/GetAllActiveItemCategory')
+      setItemCategory(res.data)
     } catch (error) {}
   }
 
   useEffect(() => {
     try {
-      fetchRoles()
+      fetchItemCat()
     } catch (error) {}
   }, [])
 
-  const fetchDepartment = async () => {
+  const fetchUom = async () => {
     try {
-      const res = await request.get('User/GetAllActiveDepartment')
-      setDepartment(res.data)
+      const res = await request.get('Uom/GetAllActiveUoms')
+      setUom(res.data)
     } catch (error) {}
   }
 
   useEffect(() => {
     try {
-      fetchDepartment()
+      fetchUom()
     } catch (error) {}
   }, [])
 
@@ -522,10 +528,10 @@ const DrawerComponent = (props) => {
       if (data.formData.id === '') {
         delete data.formData['id']
         const res = await request
-          .post(`User/AddNewUser`, data.formData)
+          .post(`Material/AddNewMaterial`, data.formData)
           .then((res) => {
-            ToastComponent('Success', 'New user created!', 'success', toast)
-            getUserHandler()
+            ToastComponent('Success', 'New Material created!', 'success', toast)
+            getMaterialHandler()
             onClose()
           })
           .catch((err) => {
@@ -534,10 +540,10 @@ const DrawerComponent = (props) => {
           })
       } else {
         const res = await request
-          .put(`User/UpdateUserInfo`, data.formData)
+          .put(`Material/UpdateMaterials`, data.formData)
           .then((res) => {
-            ToastComponent('Success', 'User Updated', 'success', toast)
-            getUserHandler()
+            ToastComponent('Success', 'Material Updated', 'success', toast)
+            getMaterialHandler()
             onClose(onClose)
           })
           .catch((error) => {
@@ -560,11 +566,11 @@ const DrawerComponent = (props) => {
         'formData',
         {
           id: editData.id,
-          fullName: editData?.fullName,
-          userName: editData?.userName,
-          password: editData?.password,
-          userRoleId: editData?.userRoleId,
-          departmentId: editData?.departmentId,
+          itemCode: editData?.itemCode,
+          itemDescription: editData?.itemDescription,
+          itemCategoryId: editData?.itemCategoryId,
+          uomId: editData?.uomId,
+          bufferLevel: editData?.bufferLevel,
           modifiedBy: currentUser.userName,
         },
         { shouldValidate: true },
@@ -580,75 +586,51 @@ const DrawerComponent = (props) => {
         <DrawerOverlay />
         <form onSubmit={handleSubmit(submitHandler)}>
           <DrawerContent>
-            <DrawerHeader borderBottomWidth="1px">User Form</DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px">Material Form</DrawerHeader>
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">
                 <Box>
-                  <FormLabel>Full Name:</FormLabel>
+                  <FormLabel>Item Code:</FormLabel>
                   <Input
-                    {...register('formData.fullName')}
-                    placeholder="Please enter Fullname"
+                    {...register('formData.itemCode')}
+                    placeholder="Please enter Item Code"
+                    autoComplete="off"
                     autoFocus
-                    autoComplete="off"
-                  />
-                  <Text color="red" fontSize="xs">
-                    {errors.formData?.fullName?.message}
-                  </Text>
-                </Box>
-
-                <Box>
-                  <FormLabel>Username:</FormLabel>
-                  <Input
-                    {...register('formData.userName')}
-                    placeholder="Please enter Fullname"
-                    autoComplete="off"
                     disabled={disableEdit}
                     readOnly={disableEdit}
                     _disabled={{ color: 'black' }}
                     bgColor={disableEdit && 'gray.300'}
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.userName?.message}
+                    {errors.formData?.itemCode?.message}
                   </Text>
                 </Box>
 
                 <Box>
-                  <FormLabel>Password:</FormLabel>
-                  <InputGroup>
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      {...register('formData.password')}
-                      placeholder="Please enter Password"
-                      autoComplete="off"
-                    />
-                    <InputRightElement>
-                      <Button
-                        bg="none"
-                        onClick={() => setShowPassword(!showPassword)}
-                        size="sm"
-                      >
-                        {showPassword ? <VscEye /> : <VscEyeClosed />}
-                      </Button>
-                    </InputRightElement>
-                  </InputGroup>
+                  <FormLabel>Item Description:</FormLabel>
+                  <Input
+                    {...register('formData.itemDescription')}
+                    placeholder="Please enter Description"
+                    autoComplete="off"
+                  />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.password?.message}
+                    {errors.formData?.itemDescription?.message}
                   </Text>
                 </Box>
 
                 <Flex mt={3}></Flex>
 
                 <Box>
-                  <FormLabel>Role:</FormLabel>
-                  {roles.length > 0 ? (
+                  <FormLabel>Item Category:</FormLabel>
+                  {itemCategory.length > 0 ? (
                     <Select
-                      {...register('formData.userRoleId')}
-                      placeholder="Select Role"
+                      {...register('formData.itemCategoryId')}
+                      placeholder="Select Item Category"
                     >
-                      {roles.map((rol) => (
-                        <option key={rol.id} value={rol.id}>
-                          {rol.roleName}
+                      {itemCategory.map((itemCat) => (
+                        <option key={itemCat.id} value={itemCat.id}>
+                          {itemCat.itemCategoryName}
                         </option>
                       ))}
                     </Select>
@@ -656,20 +638,20 @@ const DrawerComponent = (props) => {
                     'loading'
                   )}
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.userRoleId?.message}
+                    {errors.formData?.itemCategoryId?.message}
                   </Text>
                 </Box>
 
                 <Box>
-                  <FormLabel>Department:</FormLabel>
-                  {departments.length > 0 ? (
+                  <FormLabel>UOM:</FormLabel>
+                  {uom.length > 0 ? (
                     <Select
-                      {...register('formData.departmentId')}
-                      placeholder="Select Department"
+                      {...register('formData.uomId')}
+                      placeholder="Select UOM"
                     >
-                      {departments.map((dept) => (
-                        <option key={dept.id} value={dept.id}>
-                          {dept.departmentName}
+                      {uom.map((uoms) => (
+                        <option key={uoms.id} value={uoms.id}>
+                          {uoms.uomCode}
                         </option>
                       ))}
                     </Select>
@@ -677,7 +659,20 @@ const DrawerComponent = (props) => {
                     'loading'
                   )}
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.departmentId?.message}
+                    {errors.formData?.uomId?.message}
+                  </Text>
+                </Box>
+
+                <Box>
+                  <FormLabel>Buffer Level:</FormLabel>
+                  <Input
+                    {...register('formData.bufferLevel')}
+                    placeholder="Please enter Buffer Level"
+                    autoComplete="off"
+                    // type="number"
+                  />
+                  <Text color="red" fontSize="xs">
+                    {errors.formData?.bufferLevel?.message}
                   </Text>
                 </Box>
               </Stack>

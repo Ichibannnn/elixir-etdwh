@@ -58,6 +58,7 @@ const Login = () => {
           sessionStorage.setItem('userToken', ciphertext)
           setLoader(false)
           navigate('/')
+          window.location.reload(false)
           ToastComponent(
             'Login Success',
             `Welcome to Elixir ETD! ${response?.data.fullName}`,

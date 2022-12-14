@@ -14,10 +14,11 @@ const fetchTagModuleApi = async () => {
   const res = await request.get(
     `Role/GetRoleModuleWithId/${currentSelectedRole}`,
   )
+  console.log(res.data)
   return res.data
 }
 
-console.log(currentUser?.role)
+// console.log(currentUser?.role)
 
 //Header
 const SidebarHeader = () => {
@@ -44,37 +45,6 @@ const SidebarHeader = () => {
   )
 }
 
-//ListMenu
-const SidebarListMenu = ({ setNavbarData }) => {
-  var navigate = useNavigate()
-
-  const showSideBarList = (sidebarList) => {
-    setNavbarData(sidebarList)
-
-    navigate('/')
-  }
-
-  return (
-    <Flex h="800px" mt={10} flexDirection="column" pl={1}>
-      {sidebarData.map((sidebarList, o) => (
-        <Button
-          key={o}
-          size="sm"
-          bgColor="primary"
-          justifyContent="left"
-          onClick={() => showSideBarList(sidebarList)}
-          _hover={{ bg: 'buttonColor' }}
-          _focus={{ bg: 'buttonColor' }}
-          w="full"
-          borderRadius="0%"
-        >
-          <Text className="font">{sidebarList.name}</Text>
-        </Button>
-      ))}
-    </Flex>
-  )
-}
-
 //Footer
 const SidebarFooter = () => {
   return (
@@ -84,73 +54,88 @@ const SidebarFooter = () => {
   )
 }
 
-const Sidebar = ({ setNavbarData }) => {
-  // const { pathname } = useLocation()
-  // const [tagModules, setTagModules] = useState([])
-  // const { setSelectedMenu } = useContext(Context)
+//ListMenu
+const SidebarListMenu = () => {
+  const { pathname } = useLocation()
+  const [tagModules, setTagModules] = useState([])
+  const { setMenu } = useContext(Context)
 
-  // const fetchTagged = () => {
-  //   fetchTagModuleApi(tagModules).then((res) => {
-  //     const unique = []
-  //     const map = new Map()
-  //     for (const item of res) {
-  //       if (!map.has(item.mainMenuId)) {
-  //         map.set(item.mainMenuId, true)
-  //         const submenu = res.filter(
-  //           (s) =>
-  //             s.mainMenuId === item.mainMenuId && s.subMenu !== item.mainMenu,
-  //         )
-  //         unique.push({
-  //           mainMenuId: item.mainMenuId,
-  //           mainMenu: item.mainMenu,
-  //           path: item.menuPath,
-  //           subMenu: submenu.map((sub) => {
-  //             return {
-  //               title: sub.subMenu,
-  //               path: sub.moduleName,
-  //             }
-  //           }),
-  //         })
-  //       }
-  //     }
-  //     setTagModules(unique)
-  //   })
-  // }
+  const fetchTagged = () => {
+    fetchTagModuleApi(tagModules).then((res) => {
+      const unique = []
+      const map = new Map()
+      for (const item of res) {
+        if (!map.has(item.mainMenuId)) {
+          map.set(item.mainMenuId, true)
+          const submenu = res.filter(
+            (s) =>
+              s.mainMenuId === item.mainMenuId && s.subMenu !== item.mainMenu,
+          )
+          unique.push({
+            mainMenuId: item.mainMenuId,
+            mainMenu: item.mainMenu,
+            path: item.menuPath,
+            subMenu: submenu.map((sub) => {
+              return {
+                title: sub.subMenu,
+                path: sub.moduleName,
+              }
+            }),
+          })
+        }
+      }
+      setTagModules(unique)
+    })
+  }
 
-  // useEffect(() => {
-  //   fetchTagged()
+  console.log(tagModules)
 
-  //   return () => {
-  //     setTagModules([])
-  //   }
-  // }, [])
+  useEffect(() => {
+    fetchTagged()
 
-  // const selectedMenuHandler = (data) => {
-  //   setSelectedMenu(data)
-  // }
+    return () => {
+      setTagModules([])
+    }
+  }, [])
 
+  const selectedMenuHandler = (data) => {
+    setMenu(data)
+  }
+
+  return (
+    <Flex flexDirection="column" flex={1}>
+      {tagModules?.map((modName) => (
+        <Link to={modName.path} key={modName.mainMenuId}>
+          <Box
+            fontSize="11px"
+            // fontColor="fontColor"
+            fontWeight="medium"
+            onClick={() => selectedMenuHandler(modName.subMenu)}
+            p={2}
+            cursor="pointer"
+            _hover={{ bg: 'buttonColor' }}
+            _focus={{ bg: 'buttonColor' }}
+            w="full"
+            bgColor="primary"
+          >
+            <HStack justifyContent="space-between">
+              <Text color="white" pl={1}>
+                {modName.mainMenu}
+              </Text>
+            </HStack>
+          </Box>
+        </Link>
+      ))}
+    </Flex>
+  )
+}
+
+const Sidebar = () => {
   return (
     <Flex h="100vh" w="240px" bg="primary" color="#D1D2D5" boxShadow="md">
       <Flex flexDirection="column">
         <SidebarHeader />
-        <SidebarListMenu setNavbarData={setNavbarData} />
-        {/* {tagModules?.map((modName) => (
-          <Link to={modName.path} key={modName.mainMenuId}>
-            <Box
-              onClick={() => selectedMenuHandler(modName)}
-              p={2}
-              cursor="pointer"
-              _hover={{ bg: 'buttonColor' }}
-              _focus={{ bg: 'buttonColor' }}
-              w="full"
-              bgColor="primary"
-            >
-              <HStack justifyContent="space-between">
-                <Text color="white">{modName.mainMenu}</Text>
-              </HStack>
-            </Box>
-          </Link>
-        ))} */}
+        <SidebarListMenu />
         <SidebarFooter />
       </Flex>
     </Flex>
