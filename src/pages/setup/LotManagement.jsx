@@ -286,8 +286,7 @@ const LotManagement = () => {
                             <HStack>
                               <Button
                                 onClick={() => editLotHandler(sup)}
-                                size="sm"
-                                colorScheme="green"
+                                bg="none"
                                 title="Edit"
                               >
                                 <AiTwotoneEdit />
@@ -298,8 +297,8 @@ const LotManagement = () => {
                                   <>
                                     <PopoverTrigger>
                                       <Button
-                                        size="sm"
-                                        colorScheme="red"
+                                        bg="none"
+                                        p={0}
                                         title="Active/Inactive"
                                       >
                                         <GiChoice  />

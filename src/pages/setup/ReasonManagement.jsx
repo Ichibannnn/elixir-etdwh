@@ -59,8 +59,8 @@ import {
   PaginationPageGroup,
 } from '@ajna/pagination'
 
-const ItemCategory = () => {
-  const [itemCategory, setItemCategory] = useState([])
+const ReasonManagement = () => {
+  const [reasons, setReasons] = useState([])
   const [editData, setEditData] = useState([])
   const [status, setStatus] = useState(true)
   const [search, setSearch] = useState('')
@@ -71,8 +71,8 @@ const ItemCategory = () => {
   const [pageTotal, setPageTotal] = useState(undefined)
   const [disableEdit, setDisableEdit] = useState(false)
 
-  // FETCH API ITEM CATEGORY:
-  const fetchItemCategoryApi = async (pageNumber, pageSize, status, search) => {
+  // FETCH API REASON:
+  const fetchReasonApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
       `Material/GetAllItemCategoryWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
     )
@@ -127,27 +127,27 @@ const ItemCategory = () => {
       .put(`Material/${routeLabel}`, { id: id })
       .then((res) => {
         ToastComponent('Success', 'Status updated', 'success', toast)
-        getItemCategoryHandler()
+        getReasonHandler()
       })
       .catch((err) => {
         console.log(err)
       })
   }
 
-  //SHOW ITEM CATEGORY DATA----
-  const getItemCategoryHandler = () => {
-    fetchItemCategoryApi(currentPage, pageSize, status, search).then((res) => {
+  //SHOW REASONS DATA----
+  const getReasonHandler = () => {
+    fetchReasonApi(currentPage, pageSize, status, search).then((res) => {
       setIsLoading(false)
-      setItemCategory(res)
+      setReasons(res)
       setPageTotal(res.totalCount)
     })
   }
 
   useEffect(() => {
-    getItemCategoryHandler()
+    getReasonHandler()
 
     return () => {
-      setItemCategory([])
+      setReasons([])
     }
   }, [currentPage, pageSize, status, search])
 
@@ -157,8 +157,8 @@ const ItemCategory = () => {
     console.log(inputValue)
   }
 
-  //ADD ITEM CATEGORY HANDLER---
-  const addItemCategoryHandler = () => {
+  //ADD REASON HANDLER---
+  const addReasonHandler = () => {
     setEditData({
       id: '',
       itemCategoryName: '',
@@ -169,8 +169,8 @@ const ItemCategory = () => {
     setDisableEdit(false)
   }
 
-  //EDIT ITEM CATEGORY--
-  const editItemCategoryHandler = (category) => {
+  //EDIT REASON--
+  const editReasonHandler = (category) => {
     setDisableEdit(true)
     setEditData(category)
     onOpen()
@@ -263,7 +263,7 @@ const ItemCategory = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {itemCategory?.category?.map((cat, i) => (
+                    {reasons?.category?.map((cat, i) => (
                       <Tr key={i}>
                         <Td fontSize="11px">{cat.id}</Td>
                         <Td fontSize="11px">{cat.itemCategoryName}</Td>
@@ -275,7 +275,7 @@ const ItemCategory = () => {
                             <HStack>
                               <Button
                                 bg="none"
-                                onClick={() => editItemCategoryHandler(cat)}
+                                onClick={() => editReasonHandler(cat)}
                               >
                                 <AiTwotoneEdit />
                               </Button>
@@ -343,9 +343,9 @@ const ItemCategory = () => {
                 w="auto"
                 leftIcon={<BiCategory fontSize="20px" />}
                 borderRadius="none"
-                onClick={addItemCategoryHandler}
+                onClick={addReasonHandler}
               >
-                New Item Category
+                New Reason
               </Button>
 
               {/* PROPS */}
@@ -353,8 +353,8 @@ const ItemCategory = () => {
                 <DrawerComponent
                   isOpen={isOpen}
                   onClose={onClose}
-                  fetchItemCategoryApi={fetchItemCategoryApi}
-                  getItemCategoryHandler={getItemCategoryHandler}
+                  fetchReasonApi={fetchReasonApi}
+                  getReasonHandler={getReasonHandler}
                   editData={editData}
                   disableEdit={disableEdit}
                 />
@@ -419,8 +419,6 @@ const ItemCategory = () => {
               </Stack>
             </Flex>
             </PageScroll>
-
-
           </Flex>
         </Flex>
       </Flex>
@@ -428,7 +426,7 @@ const ItemCategory = () => {
   )
 }
 
-export default ItemCategory
+export default ReasonManagement
 
 const schema = yup.object().shape({
   formData: yup.object().shape({
@@ -443,7 +441,7 @@ const DrawerComponent = (props) => {
   const {
     isOpen,
     onClose,
-    getItemCategoryHandler,
+    getReasonHandler,
     editData,
     disableEdit,
   } = props
@@ -481,7 +479,7 @@ const DrawerComponent = (props) => {
               'success',
               toast,
             )
-            getItemCategoryHandler()
+            getReasonHandler()
             onClose()
           })
           .catch((err) => {
@@ -493,7 +491,7 @@ const DrawerComponent = (props) => {
           .put(`Material/UpdateItemCategories`, data.formData)
           .then((res) => {
             ToastComponent('Success', 'Item Category Updated', 'success', toast)
-            getItemCategoryHandler()
+            getReasonHandler()
             onClose(onClose)
           })
           .catch((error) => {

@@ -45,13 +45,16 @@ const Header = ({ setSidebarHandler }) => {
       </HStack>
 
       <HStack>
-        <Text className="font" color="#fff">
-          Welcome, {`${user && user?.fullName}`}!
-        </Text>
+        <Flex>
+          <Text className="font" color="#fff">
+            Welcome, {`${user && user?.fullName}`}!
+          </Text>
+        </Flex>
+
         <Image
-          boxSize="37px"
+          boxSize="33px"
           objectFit="cover"
-          src="/images/userlogout.png"
+          src="/images/user.png"
           alt="lot"
           onClick={logoutHandler}
         />

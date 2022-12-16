@@ -71,10 +71,10 @@ const CustomersManagement = () => {
   const [pageTotal, setPageTotal] = useState(undefined)
   const [disableEdit, setDisableEdit] = useState(false)
 
-  // FETCH API SUPPLIER CATEGORY:
+  // FETCH API CUSTOMER:
   const fetchCustomerApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
-      `Supplier/GetAllSupplierithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+      `Customer/GetAllCustomerWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
     )
 
     return response.data
@@ -118,13 +118,13 @@ const CustomersManagement = () => {
     console.log(id)
     console.log(isActive)
     if (isActive) {
-      routeLabel = 'InActiveSupplier'
+      routeLabel = 'InActiveCustomer'
     } else {
-      routeLabel = 'ActivateSupplier'
+      routeLabel = 'ActivateCustomer'
     }
 
     request
-      .put(`Supplier/${routeLabel}`, { id: id })
+      .put(`Customer/${routeLabel}`, { id: id })
       .then((res) => {
         ToastComponent('Success', 'Status updated', 'success', toast)
         getCustomerHandler()
@@ -134,7 +134,7 @@ const CustomersManagement = () => {
       })
   }
 
-  //SHOW SUPPLIER CATEGORY DATA----
+  //SHOW CUSTOMER DATA----
   const getCustomerHandler = () => {
     fetchCustomerApi(currentPage, pageSize, status, search).then((res) => {
       setIsLoading(false)
@@ -157,13 +157,16 @@ const CustomersManagement = () => {
     console.log(inputValue)
   }
 
-  //ADD SUPPLIER CATEGORY HANDLER---
+  //ADD CUSTOMER---
   const addCustomerHandler = () => {
     setEditData({
       id: '',
-      supplierCode: '',
-      supplierName: '',
-      supplierAddress: '',
+      customerCode: '',
+      customerName: '',
+      customerTypeId: '',
+      companyName: 'RDF',
+      mobileNumber: '',
+      address: '',
       addedBy: currentUser.userName,
       modifiedBy: '',
     })
@@ -172,9 +175,9 @@ const CustomersManagement = () => {
   }
 
   //EDIT SUPPLIER CATEGORY--
-  const editCustomerHandler = (supplier) => {
+  const editCustomerHandler = (customer) => {
     setDisableEdit(true)
-    setEditData(supplier)
+    setEditData(customer)
     onOpen()
     // console.log(mod.mainMenu)
   }
@@ -257,23 +260,20 @@ const CustomersManagement = () => {
                         Customer Name
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Type
+                        Customer Type
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Company
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Mobile Name
-                      </Th>
-                      <Th color="#D6D6D6" fontSize="10px">
-                        Leadman
+                        Mobile Number
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Address
                       </Th>
-                      <Th color="#D6D6D6" fontSize="10px">
+                      {/* <Th color="#D6D6D6" fontSize="10px">
                         Added By
-                      </Th>
+                      </Th> */}
                       <Th color="#D6D6D6" fontSize="10px">
                         Date Added
                       </Th>
@@ -283,26 +283,24 @@ const CustomersManagement = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {customers?.supplier?.map((sup, i) => (
+                    {customers?.customer?.map((cust, i) => (
                       <Tr key={i}>
-                        <Td fontSize="11px">{sup.id}</Td>
-                        <Td fontSize="11px">{sup.supplierCode}</Td>
-                        <Td fontSize="11px">{sup.supplierName}</Td>
-                        <Td></Td>
-                        <Td></Td>
-                        <Td></Td>
-                        <Td></Td>
-                        <Td fontSize="11px">{sup.supplierAddress}</Td>
-                        <Td fontSize="11px">{sup.addedBy}</Td>
-                        <Td fontSize="11px">{sup.dateAdded}</Td>
+                        <Td fontSize="11px">{cust.id}</Td>
+                        <Td fontSize="11px">{cust.customerCode}</Td>
+                        <Td fontSize="11px">{cust.customerName}</Td>
+                        <Td fontSize="11px">{cust.customerType}</Td>
+                        <Td fontSize="11px">{cust.companyName}</Td>
+                        <Td fontSize="11px">{cust.mobileNumber}</Td>
+                        <Td fontSize="11px">{cust.address}</Td>
+                        {/* <Td fontSize="11px">{cust.addedBy}</Td> */}
+                        <Td fontSize="11px">{cust.dateAdded}</Td>
 
                         <Td pl={0}>
                           <Flex>
                             <HStack>
                               <Button
-                                onClick={() => editCustomerHandler(sup)}
-                                size="sm"
-                                colorScheme="green"
+                                onClick={() => editCustomerHandler(cust)}
+                                bg="none"
                                 title="Edit"
                               >
                                 <AiTwotoneEdit />
@@ -313,8 +311,8 @@ const CustomersManagement = () => {
                                   <>
                                     <PopoverTrigger>
                                       <Button
-                                        size="sm"
-                                        colorScheme="red"
+                                        p={0}
+                                        bg="none"
                                         title="Active/Inactive"
                                       >
                                         <GiChoice />
@@ -329,15 +327,15 @@ const CustomersManagement = () => {
                                         </PopoverHeader>
                                         <PopoverBody>
                                           <VStack onClick={onClose}>
-                                            {sup.isActive === true ? (
+                                            {cust.isActive === true ? (
                                               <Text>
                                                 Are you sure you want to set
-                                                this Supplier inactive?
+                                                this Customer inactive?
                                               </Text>
                                             ) : (
                                               <Text>
                                                 Are you sure you want to set
-                                                this Supplier active?
+                                                this Customer active?
                                               </Text>
                                             )}
                                             <Button
@@ -345,8 +343,8 @@ const CustomersManagement = () => {
                                               size="sm"
                                               onClick={() =>
                                                 changeStatusHandler(
-                                                  sup.id,
-                                                  sup.isActive,
+                                                  cust.id,
+                                                  cust.isActive,
                                                 )
                                               }
                                             >
@@ -464,9 +462,12 @@ export default CustomersManagement
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    supplierCode: yup.string().required('Supplier Code is required'),
-    supplierName: yup.string().required('Supplier Name is required'),
-    supplierAddress: yup.string().required('Supplier Address is required'),
+    customerCode: yup.string().required('Customer Code is required'),
+    customerName: yup.string().required('Customer Name is required'),
+    customerTypeId: yup.string().required('Customer Type is required'),
+    companyName: yup.string().required('Company is required'),
+    mobileNumber: yup.string().required('Mobile Number is required').max(11, 'Number must be 11 numbers'),
+    address: yup.string().required('Address is required'),
   }),
 })
 
@@ -475,6 +476,7 @@ const currentUser = decodeUser()
 const DrawerComponent = (props) => {
   const { isOpen, onClose, getCustomerHandler, editData, disableEdit } = props
   const toast = useToast()
+  const [customerType, setCustomerType] = useState([])
 
   const {
     register,
@@ -488,21 +490,38 @@ const DrawerComponent = (props) => {
     defaultValues: {
       formData: {
         id: '',
-        supplierCode: '',
-        supplierName: '',
-        supplierAddress: '',
+        customerCode: '',
+        customerName: '',
+        customerTypeId: '',
+        companyName: 'RDF',
+        mobileNumber: '',
+        address: '',
         addedBy: currentUser?.userName,
         modifiedBy: '',
       },
     },
   })
 
+  const fetchCustomerType = async () => {
+    try {
+      const res = await request.get('Customer/GetAllActiveCustomerType')
+      setCustomerType(res.data)
+    } catch (error) {}
+  }
+
+  useEffect(() => {
+    try {
+      fetchCustomerType()
+    } catch (error) {}
+  }, [])
+
+
   const submitHandler = async (data) => {
     try {
       if (data.formData.id === '') {
         delete data.formData['id']
         const res = await request
-          .post('Supplier/AddNewSupplier', data.formData)
+          .post('Customer/AddNewCustomer', data.formData)
           .then((res) => {
             ToastComponent(
               'Success',
@@ -519,9 +538,9 @@ const DrawerComponent = (props) => {
           })
       } else {
         const res = await request
-          .put(`Supplier/UpdateSupplier`, data.formData)
+          .put(`Customer/UpdateCustomer`, data.formData)
           .then((res) => {
-            ToastComponent('Success', 'Supplier Updated', 'success', toast)
+            ToastComponent('Success', 'Customer Updated', 'success', toast)
             getCustomerHandler()
             onClose(onClose)
           })
@@ -543,9 +562,12 @@ const DrawerComponent = (props) => {
         'formData',
         {
           id: editData.id,
-          supplierCode: editData?.supplierCode,
-          supplierName: editData?.supplierName,
-          supplierAddress: editData?.supplierAddress,
+          customerCode: editData?.customerCode,
+          customerName: editData?.customerName,
+          customerTypeId: editData?.customerTypeId,
+          companyName: editData?.companyName,
+          mobileNumber: editData?.mobileNumber,
+          address: editData?.address,
           modifiedBy: currentUser.userName,
         },
         { shouldValidate: true },
@@ -561,15 +583,15 @@ const DrawerComponent = (props) => {
         <DrawerOverlay />
         <form onSubmit={handleSubmit(submitHandler)}>
           <DrawerContent>
-            <DrawerHeader borderBottomWidth="1px">Supplier Form</DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px">Customer Form</DrawerHeader>
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">
                 <Box>
-                  <FormLabel>Supplier Code:</FormLabel>
+                  <FormLabel>Customer Code:</FormLabel>
                   <Input
-                    {...register('formData.supplierCode')}
-                    placeholder="Please enter Supplier Code"
+                    {...register('formData.customerCode')}
+                    placeholder="Please enter Custome Code"
                     autoComplete="off"
                     disabled={disableEdit}
                     readOnly={disableEdit}
@@ -578,29 +600,77 @@ const DrawerComponent = (props) => {
                     autoFocus
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.supplierCode?.message}
+                    {errors.formData?.customerCode?.message}
                   </Text>
                 </Box>
                 <Box>
-                  <FormLabel>Supplier Name:</FormLabel>
+                  <FormLabel>Customer Name:</FormLabel>
                   <Input
-                    {...register('formData.supplierName')}
-                    placeholder="Please enter Supplier Name"
+                    {...register('formData.customerName')}
+                    placeholder="Please enter Customer Name"
                     autoComplete="off"
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.supplierName?.message}
+                    {errors.formData?.customerName?.message}
                   </Text>
                 </Box>
                 <Box>
-                  <FormLabel>Supplier Address:</FormLabel>
+                  <FormLabel>Customer Type:</FormLabel>
+                  {customerType.length > 0 ? (
+                    <Select
+                      {...register('formData.customerTypeId')}
+                      placeholder="Select Customer Type"
+                    >
+                      {customerType.map((ct) => (
+                        <option key={ct.id} value={ct.id}>
+                          {ct.customerName}
+                        </option>
+                      ))}
+                    </Select>
+                  ) : (
+                    'loading'
+                  )}
+                  <Text color="red" fontSize="xs">
+                    {errors.formData?.customerTypeId?.message}
+                  </Text>
+                </Box>
+                <Box>
+                  <FormLabel>Company Name:</FormLabel>
                   <Input
-                    {...register('formData.supplierAddress')}
-                    placeholder="Please enter Supplier Address"
+                    {...register('formData.companyName')}
+                    placeholder="Please enter Company Name"
+                    autoComplete='off'
+                    disabled={true}
+                    readOnly={true}
+                    _disabled={{ color: 'black' }}
+                    bgColor='gray.300'
+                    cursor='not-allowed'
+                  />
+                  <Text color="red" fontSize="xs">
+                    {errors.formData?.customerName?.message}
+                  </Text>
+                </Box>
+                <Box>
+                  <FormLabel>Mobile Number:</FormLabel>
+                  <Input
+                    {...register('formData.mobileNumber')}
+                    placeholder="Please enter Mobile Number"
+                    autoComplete="off"
+                    type="number"
+                  />
+                  <Text color="red" fontSize="xs">
+                    {errors.formData?.mobileNumber?.message}
+                  </Text>
+                </Box>
+                <Box>
+                  <FormLabel>Address:</FormLabel>
+                  <Input
+                    {...register('formData.address')}
+                    placeholder="Please enter Address"
                     autoComplete="off"
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.supplierAddress?.message}
+                    {errors.formData?.address?.message}
                   </Text>
                 </Box>
               </Stack>

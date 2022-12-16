@@ -358,9 +358,8 @@ const MaterialsManagement = () => {
                   </Tbody>
                 </Table>
               )}
-            </PageScroll>
 
-            <Flex justifyContent="space-between">
+              <Flex justifyContent="space-between" mt={2}>
               <Button
                 size="sm"
                 colorScheme="blue"
@@ -442,6 +441,9 @@ const MaterialsManagement = () => {
                 />
               )}
             </Flex>
+            </PageScroll>
+
+
           </Flex>
         </Flex>
       </Flex>

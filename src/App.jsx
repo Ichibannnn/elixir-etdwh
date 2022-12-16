@@ -24,6 +24,11 @@ import { Context } from './components/context/Context'
 import UserManagementPage from './UserManagementPage'
 import SetupManagementPage from './SetupManagementPage'
 import LotCategory from './pages/setup/LotCategory'
+import CustomerType from './pages/setup/CustomerType'
+import ReasonManagement from './pages/setup/ReasonManagement'
+import AccountTitlePage from './AccountTitlePage'
+import CompanyManagement from './pages/account_title/CompanyManagement'
+
 
 const App = () => {
   const [menu, setMenu] = useState(null)
@@ -34,38 +39,30 @@ const App = () => {
         <Route path="/login" element={<Login />} />
 
         <Route element={<ProtectedRoutes />}>
+
           <Route path="/" element={<MainContainer />}>
             <Route path="/setup" element={<SetupManagementPage />}>
               <Route path="/setup/uom-management" element={<UomManagement />} />
-              <Route
-                path="/setup/materials-management"
-                element={<MaterialsManagement />}
-              />
+              <Route path="/setup/materials-management" element={<MaterialsManagement />}/>
               <Route path="/setup/item-category" element={<ItemCategory />} />
-              <Route
-                path="/setup/suppliers-management"
-                element={<SuppliersManagement />}
-              />
-              <Route
-                path="/setup/customers-management"
-                element={<CustomersManagement />}
-              />
+              <Route path="/setup/suppliers-management" element={<SuppliersManagement />}/>
+              <Route path="/setup/customers-management" element={<CustomersManagement />}/>
+              <Route path="/setup/customer-type" element={<CustomerType />} />
               <Route path="/setup/lot-management" element={<LotManagement />} />
               <Route path="/setup/lot-category" element={<LotCategory />} />
+              <Route path="/setup/reason-management" element={<ReasonManagement />} />
             </Route>
 
             <Route path="/user" element={<UserManagementPage />}>
               <Route path="/user/user-account" element={<UserAccount />} />
               <Route path="/user/user-role" element={<UserRole />} />
               <Route path="/user/department" element={<Department />} />
-              <Route
-                path="/user/module-management"
-                element={<ModuleManagement />}
-              />
-              <Route
-                path="/user/menu-management"
-                element={<MenuManagement />}
-              />
+              <Route path="/user/module-management" element={<ModuleManagement />}/>
+              <Route path="/user/menu-management" element={<MenuManagement />}/>
+            </Route>
+
+            <Route path="/account-title" element={<AccountTitlePage />}>
+              <Route path="/account-title/company-management" element={<CompanyManagement />} />
             </Route>
 
             <Route path="*" element={<ErrorPage />} />
