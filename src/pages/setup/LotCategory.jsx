@@ -161,7 +161,6 @@ const LotCategory = () => {
   const addLotCategoryHandler = () => {
     setEditData({
       id: '',
-      lotCode: '',
       lotName: '',
       addedBy: currentUser.userName,
       modifiedBy: '',
@@ -250,9 +249,6 @@ const LotCategory = () => {
                         ID
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Lot Code
-                      </Th>
-                      <Th color="#D6D6D6" fontSize="10px">
                         Lot Name
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
@@ -270,7 +266,6 @@ const LotCategory = () => {
                     {lotCategory?.category?.map((cat, i) => (
                       <Tr key={i}>
                         <Td fontSize="11px">{cat.id}</Td>
-                        <Td fontSize="11px">{cat.lotCategoryCode}</Td>
                         <Td fontSize="11px">{cat.lotCategoryName}</Td>
                         <Td fontSize="11px">{cat.addedBy}</Td>
                         <Td fontSize="11px">{cat.dateAdded}</Td>
@@ -437,7 +432,6 @@ export default LotCategory
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    lotCode: yup.string().required('Lot Code name is required'),
     lotName: yup.string().required('Lot Name name is required'),
   }),
 })
@@ -466,7 +460,6 @@ const DrawerComponent = (props) => {
     defaultValues: {
       formData: {
         id: '',
-        lotCode: '',
         lotName: '',
         addedBy: currentUser?.userName,
         modifiedBy: '',
@@ -520,7 +513,6 @@ const DrawerComponent = (props) => {
         'formData',
         {
           id: editData.id,
-          lotCode: editData?.lotCategoryCode,
           lotName: editData?.lotCategoryName,
           modifiedBy: currentUser.userName,
         },
@@ -543,21 +535,6 @@ const DrawerComponent = (props) => {
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">
-                <Box>
-                  <FormLabel>Lot Code:</FormLabel>
-                  <Input
-                    {...register('formData.lotCode')}
-                    placeholder="Please enter Lot Category Code"
-                    autoComplete="off"
-                    disabled={disableEdit}
-                    readOnly={disableEdit}
-                    _disabled={{ color: 'black' }}
-                    bgColor={disableEdit && 'gray.300'}
-                  />
-                  <Text color="red" fontSize="xs">
-                    {errors.formData?.lotCode?.message}
-                  </Text>
-                </Box>
                 <Box>
                   <FormLabel>Lot Name:</FormLabel>
                   <Input

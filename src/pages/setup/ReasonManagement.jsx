@@ -46,6 +46,7 @@ import { MdLibraryAdd } from 'react-icons/md'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
+
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { decodeUser } from '../../services/decode-user'
@@ -74,7 +75,7 @@ const ReasonManagement = () => {
   // FETCH API REASON:
   const fetchReasonApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
-      `Material/GetAllItemCategoryWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+      `Reason/GetAllReasonWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
     )
 
     return response.data
@@ -115,16 +116,14 @@ const ReasonManagement = () => {
 
   const changeStatusHandler = (id, isActive) => {
     let routeLabel
-    console.log(id)
-    console.log(isActive)
     if (isActive) {
-      routeLabel = 'InActiveItemCategory'
+      routeLabel = 'InActiveReason'
     } else {
-      routeLabel = 'ActivateItemCategory'
+      routeLabel = 'ActivateReason'
     }
 
     request
-      .put(`Material/${routeLabel}`, { id: id })
+      .put(`/Reason/${routeLabel}`, { id: id })
       .then((res) => {
         ToastComponent('Success', 'Status updated', 'success', toast)
         getReasonHandler()
@@ -132,9 +131,10 @@ const ReasonManagement = () => {
       .catch((err) => {
         console.log(err)
       })
+    console.log(routeLabel)
   }
 
-  //SHOW REASONS DATA----
+  //SHOW REASON DATA----
   const getReasonHandler = () => {
     fetchReasonApi(currentPage, pageSize, status, search).then((res) => {
       setIsLoading(false)
@@ -161,7 +161,8 @@ const ReasonManagement = () => {
   const addReasonHandler = () => {
     setEditData({
       id: '',
-      itemCategoryName: '',
+      mainMenuId: '',
+      reasonName: '',
       addedBy: currentUser.userName,
       modifiedBy: '',
     })
@@ -170,14 +171,13 @@ const ReasonManagement = () => {
   }
 
   //EDIT REASON--
-  const editReasonHandler = (category) => {
+  const editReasonHandler = (reason) => {
     setDisableEdit(true)
-    setEditData(category)
+    setEditData(reason)
     onOpen()
-    // console.log(mod.mainMenu)
   }
 
-  //FOR DRAWER (Drawer / Drawer Tagging)
+  //FOR DRAWER
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   return (
@@ -203,7 +203,7 @@ const ReasonManagement = () => {
                   borderRadius="none"
                   size="sm"
                   type="text"
-                  placeholder="Search: Category Name"
+                  placeholder="Search: Reason"
                   borderColor="gray.400"
                   _hover={{ borderColor: 'gray.400' }}
                   onChange={(e) => searchHandler(e.target.value)}
@@ -249,7 +249,10 @@ const ReasonManagement = () => {
                         ID
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
-                        Category Name
+                        Module
+                      </Th>
+                      <Th color="#D6D6D6" fontSize="10px">
+                        Reason
                       </Th>
                       <Th color="#D6D6D6" fontSize="10px">
                         Added By
@@ -263,19 +266,20 @@ const ReasonManagement = () => {
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {reasons?.category?.map((cat, i) => (
+                    {reasons.reason?.map((rs, i) => (
                       <Tr key={i}>
-                        <Td fontSize="11px">{cat.id}</Td>
-                        <Td fontSize="11px">{cat.itemCategoryName}</Td>
-                        <Td fontSize="11px">{cat.addedBy}</Td>
-                        <Td fontSize="11px">{cat.dateAdded}</Td>
+                        <Td fontSize="11px">{rs.id}</Td>
+                        <Td fontSize="11px">{rs.mainMenu}</Td>
+                        <Td fontSize="11px">{rs.reasonName}</Td>
+                        <Td fontSize="11px">{rs.addedBy}</Td>
+                        <Td fontSize="11px">{rs.dateAdded}</Td>
 
                         <Td pl={0}>
                           <Flex>
                             <HStack>
                               <Button
                                 bg="none"
-                                onClick={() => editReasonHandler(cat)}
+                                onClick={() => editReasonHandler(rs)}
                               >
                                 <AiTwotoneEdit />
                               </Button>
@@ -297,15 +301,15 @@ const ReasonManagement = () => {
                                         </PopoverHeader>
                                         <PopoverBody>
                                           <VStack onClick={onClose}>
-                                            {cat.isActive === true ? (
+                                            {rs.isActive === true ? (
                                               <Text>
                                                 Are you sure you want to set
-                                                this Item Category inactive?
+                                                this module inactive?
                                               </Text>
                                             ) : (
                                               <Text>
                                                 Are you sure you want to set
-                                                this Item Category active?
+                                                this module active?
                                               </Text>
                                             )}
                                             <Button
@@ -313,8 +317,8 @@ const ReasonManagement = () => {
                                               size="sm"
                                               onClick={() =>
                                                 changeStatusHandler(
-                                                  cat.id,
-                                                  cat.isActive,
+                                                  rs.id,
+                                                  rs.isActive,
                                                 )
                                               }
                                             >
@@ -335,7 +339,9 @@ const ReasonManagement = () => {
                   </Tbody>
                 </Table>
               )}
-              <Flex justifyContent="space-between" mt={3}>
+            </PageScroll>
+
+            <Flex justifyContent="space-between">
               <Button
                 size="sm"
                 colorScheme="blue"
@@ -418,7 +424,6 @@ const ReasonManagement = () => {
                 </Pagination>
               </Stack>
             </Flex>
-            </PageScroll>
           </Flex>
         </Flex>
       </Flex>
@@ -431,20 +436,16 @@ export default ReasonManagement
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    itemCategoryName: yup.string().required('Item Category name is required'),
+    mainMenuId: yup.number().required('Main Menu is required'),
+    reasonName: yup.string().required('Reason is required'),
   }),
 })
 
 const currentUser = decodeUser()
 
 const DrawerComponent = (props) => {
-  const {
-    isOpen,
-    onClose,
-    getReasonHandler,
-    editData,
-    disableEdit,
-  } = props
+  const { isOpen, onClose, getReasonHandler, editData } = props
+  const [menu, setMenu] = useState([])
   const toast = useToast()
 
   const {
@@ -459,26 +460,35 @@ const DrawerComponent = (props) => {
     defaultValues: {
       formData: {
         id: '',
-        itemCategoryName: '',
+        mainMenuId: '',
+        reasonName: '',
         addedBy: currentUser?.userName,
-        modifiedBy: '',
       },
     },
   })
+
+  // FETCH MAIN MENU
+  const fetchMenu = async () => {
+    try {
+      const res = await request.get('Module/GetAllActiveMainMenu')
+      setMenu(res.data)
+    } catch (error) {}
+  }
+
+  useEffect(() => {
+    try {
+      fetchMenu()
+    } catch (error) {}
+  }, [])
 
   const submitHandler = async (data) => {
     try {
       if (data.formData.id === '') {
         delete data.formData['id']
         const res = await request
-          .post('Material/AddNewItemCategories', data.formData)
+          .post('Reason/AddNewReason', data.formData)
           .then((res) => {
-            ToastComponent(
-              'Success',
-              'New Item Category created!',
-              'success',
-              toast,
-            )
+            ToastComponent('Success', 'New Reason created!', 'success', toast)
             getReasonHandler()
             onClose()
           })
@@ -488,11 +498,11 @@ const DrawerComponent = (props) => {
           })
       } else {
         const res = await request
-          .put(`Material/UpdateItemCategories`, data.formData)
+          .put(`Reason/UpdateReason`, data.formData)
           .then((res) => {
-            ToastComponent('Success', 'Item Category Updated', 'success', toast)
+            ToastComponent('Success', 'Reason Updated', 'success', toast)
             getReasonHandler()
-            onClose(onClose)
+            onClose()
           })
           .catch((error) => {
             ToastComponent(
@@ -512,15 +522,15 @@ const DrawerComponent = (props) => {
         'formData',
         {
           id: editData.id,
-          itemCategoryName: editData?.itemCategoryName,
-          modifiedBy: currentUser.userName,
+          mainMenuId: editData?.mainMenuId,
+          reasonName: editData?.reasonName,
         },
         { shouldValidate: true },
       )
     }
   }, [editData])
 
-  console.log(watch('formData'))
+  console.log(watch('formData.id'))
 
   return (
     <>
@@ -528,22 +538,41 @@ const DrawerComponent = (props) => {
         <DrawerOverlay />
         <form onSubmit={handleSubmit(submitHandler)}>
           <DrawerContent>
-            <DrawerHeader borderBottomWidth="1px">
-              Item Category Form
-            </DrawerHeader>
+            <DrawerHeader borderBottomWidth="1px">Reason Form</DrawerHeader>
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">
                 <Box>
-                  <FormLabel>Category Code:</FormLabel>
+                  <FormLabel>Main Menu:</FormLabel>
+
+                  {menu.length > 0 ? (
+                    <Select
+                      {...register('formData.mainMenuId')}
+                      placeholder="Select Main Menu"
+                    >
+                      {menu.map((mods) => (
+                        <option key={mods.id} value={mods.id}>
+                          {mods.mainMenu}
+                        </option>
+                      ))}
+                    </Select>
+                  ) : (
+                    'loading'
+                  )}
+                  <Text color="red" fontSize="xs">
+                    {errors.formData?.mainMenuId?.message}
+                  </Text>
+                </Box>
+
+                <Box>
+                  <FormLabel>Reason:</FormLabel>
                   <Input
-                    {...register('formData.itemCategoryName')}
-                    placeholder="Please enter Category name"
+                    {...register('formData.reasonName')}
+                    placeholder="Please enter Reason name"
                     autoComplete="off"
-                    autoFocus
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.itemCategoryName?.message}
+                    {errors.formData?.reasonName?.message}
                   </Text>
                 </Box>
               </Stack>
@@ -552,7 +581,8 @@ const DrawerComponent = (props) => {
               <Button variant="outline" mr={3} onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={!isValid} colorScheme="blue">
+
+              <Button type="submit" colorScheme="blue" disabled={!isValid}>
                 Submit
               </Button>
             </DrawerFooter>
