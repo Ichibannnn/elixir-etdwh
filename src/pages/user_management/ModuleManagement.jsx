@@ -347,9 +347,11 @@ const ModuleManagement = () => {
               <Button
                 size="sm"
                 colorScheme="blue"
+                fontSize="13px"
+                fontWeight="normal"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                leftIcon={<MdLibraryAdd fontSize="22px" />}
+                leftIcon={<MdLibraryAdd fontSize="19px" />}
                 borderRadius="none"
                 onClick={addModuleHandler}
               >

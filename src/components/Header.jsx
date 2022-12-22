@@ -34,16 +34,12 @@ const Header = ({ setSidebarHandler }) => {
       </HStack>
 
       <HStack>
-        {/* <Flex>
-          <Text className="font" color="#fff">
-            Welcome, {`${user && user?.fullName}`}!
-          </Text>
-        </Flex> */}
       
       <Box>
         <Menu>
           <MenuButton alignItems="center" justifyContent="center">
             <Image
+              mt={1.5}
               boxSize="33px"
               objectFit="cover"
               src="/images/user.png"

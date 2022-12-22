@@ -33,10 +33,10 @@ const Sidebar = () => {
   return (
     <Flex
       h="100vh"
-      w="17%"
+      w="16%"
       bg="primary"
       color="#D1D2D5"
-      boxShadow="md"
+      // boxShadow="md"
       justifyContent="space-between"
       flexDirection="column"
     >
@@ -102,11 +102,11 @@ const SidebarList = () => {
           <AccordionItem
             key={sidebarMenu.path}
             border="none"
-            boxShadow={
-              pathname.includes(sidebarMenu.path)
-                ? "0px 3px 10px 0px rgba(40,40,43,1)"
-                : "none"
-            }
+            // boxShadow={
+            //   pathname.includes(sidebarMenu.path)
+            //     ? "0px 3px 10px 0px rgba(40,40,43,1)"
+            //     : "none"
+            // }
             bgColor={pathname.includes(sidebarMenu.path) ? "accent" : ""}
             fontWeight="semibold"
             color='white'
@@ -125,24 +125,11 @@ const SidebarList = () => {
               <AccordionIcon color="white" />
             </AccordionButton>
             {/* </Link> */}
-            <AccordionPanel
-              boxShadow={
-                pathname.includes(sidebarMenu.path)
-                  ? "0px 3px 10px 0px rgba(40,40,43,1)"
-                  : "none"
-              }
-              bgColor="secondary"
-              p={4}
-            >
+            <AccordionPanel bgColor="secondary" p={4}>
               <PageScroll minHeight="auto" maxHeight="200px">
                 {menu?.map((sub, i) => (
                   <Link to={sub.path} key={sub.path}>
-                    <Box
-                      w="full"
-                      justifyContent="start"
-                      cursor="pointer"
-                      //   onClick={() => subHandler(sub.title)}
-                    >
+                    <Box w="full" justifyContent="start" cursor="pointer">
                       <Text
                         p={1}
                         m={1}
@@ -153,7 +140,6 @@ const SidebarList = () => {
                         bgColor={
                           pathname.includes(sub.path) ? "accent" : "none"
                         }
-                        // border="1px"
                         textAlign="left"
                         borderStyle={
                           pathname.includes(sub.path) ? "groove" : "dashed"
@@ -161,7 +147,6 @@ const SidebarList = () => {
                         _focus={{ bg: 'buttonColor' }}
                         _hover={{
                           borderStyle: "groove",
-                          boxShadow: "0px 3px 10px 0px rgba(40,40,43,1)",
                           bgColor: "buttonColor",
                           color: "myBlack",
                         }}

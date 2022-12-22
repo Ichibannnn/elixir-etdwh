@@ -42,7 +42,7 @@ import { useForm } from 'react-hook-form'
 import { AiTwotoneEdit } from 'react-icons/ai'
 import { GiChoice } from 'react-icons/gi'
 import { FaSearch } from 'react-icons/fa'
-import { MdLibraryAdd } from 'react-icons/md'
+import { BiCategory } from 'react-icons/bi'
 import PageScroll from '../../utils/PageScroll'
 import request from '../../services/ApiClient'
 import { ToastComponent } from '../../components/Toast'
@@ -74,7 +74,7 @@ const LotCategory = () => {
   // FETCH API LOT CATEGORY:
   const fetchLotCategoryApi = async (pageNumber, pageSize, status, search) => {
     const response = await request.get(
-      `Lot/GetAllLotCategoryWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+      `Material/GetAllItemCategoryWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
     )
 
     return response.data
@@ -118,13 +118,13 @@ const LotCategory = () => {
     console.log(id)
     console.log(isActive)
     if (isActive) {
-      routeLabel = 'InActiveLotCategories'
+      routeLabel = 'InActiveItemCategory'
     } else {
-      routeLabel = 'ActivateLotCategories'
+      routeLabel = 'ActivateItemCategory'
     }
 
     request
-      .put(`Lot/${routeLabel}`, { id: id })
+      .put(`Material/${routeLabel}`, { id: id })
       .then((res) => {
         ToastComponent('Success', 'Status updated', 'success', toast)
         getLotCategoryHandler()
@@ -161,7 +161,7 @@ const LotCategory = () => {
   const addLotCategoryHandler = () => {
     setEditData({
       id: '',
-      lotName: '',
+      itemCategoryName: '',
       addedBy: currentUser.userName,
       modifiedBy: '',
     })
@@ -203,7 +203,7 @@ const LotCategory = () => {
                   borderRadius="none"
                   size="sm"
                   type="text"
-                  placeholder="Search: Lot Name"
+                  placeholder="Search: Category Name"
                   borderColor="gray.400"
                   _hover={{ borderColor: 'gray.400' }}
                   onChange={(e) => searchHandler(e.target.value)}
@@ -266,7 +266,7 @@ const LotCategory = () => {
                     {lotCategory?.category?.map((cat, i) => (
                       <Tr key={i}>
                         <Td fontSize="11px">{cat.id}</Td>
-                        <Td fontSize="11px">{cat.lotCategoryName}</Td>
+                        <Td fontSize="11px">{cat.itemCategoryName}</Td>
                         <Td fontSize="11px">{cat.addedBy}</Td>
                         <Td fontSize="11px">{cat.dateAdded}</Td>
 
@@ -300,12 +300,12 @@ const LotCategory = () => {
                                             {cat.isActive === true ? (
                                               <Text>
                                                 Are you sure you want to set
-                                                this Lot Category inactive?
+                                                this Item Category inactive?
                                               </Text>
                                             ) : (
                                               <Text>
                                                 Are you sure you want to set
-                                                this Lot Category active?
+                                                this Item Category active?
                                               </Text>
                                             )}
                                             <Button
@@ -343,7 +343,7 @@ const LotCategory = () => {
                 colorScheme="blue"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                leftIcon={<MdLibraryAdd fontSize="22px" />}
+                leftIcon={<BiCategory fontSize="20px" />}
                 borderRadius="none"
                 onClick={addLotCategoryHandler}
               >
@@ -432,7 +432,7 @@ export default LotCategory
 const schema = yup.object().shape({
   formData: yup.object().shape({
     id: yup.string(),
-    lotName: yup.string().required('Lot Name name is required'),
+    itemCategoryName: yup.string().required('Item Category name is required'),
   }),
 })
 
@@ -460,7 +460,7 @@ const DrawerComponent = (props) => {
     defaultValues: {
       formData: {
         id: '',
-        lotName: '',
+        itemCategoryName: '',
         addedBy: currentUser?.userName,
         modifiedBy: '',
       },
@@ -472,11 +472,11 @@ const DrawerComponent = (props) => {
       if (data.formData.id === '') {
         delete data.formData['id']
         const res = await request
-          .post('Lot/AddNewLotCategory', data.formData)
+          .post('Material/AddNewItemCategories', data.formData)
           .then((res) => {
             ToastComponent(
               'Success',
-              'New Lot Category created!',
+              'New Item Category created!',
               'success',
               toast,
             )
@@ -489,9 +489,9 @@ const DrawerComponent = (props) => {
           })
       } else {
         const res = await request
-          .put(`Lot/UpdateLotCategories`, data.formData)
+          .put(`Material/UpdateItemCategories`, data.formData)
           .then((res) => {
-            ToastComponent('Success', 'Lot Category Updated', 'success', toast)
+            ToastComponent('Success', 'Item Category Updated', 'success', toast)
             getLotCategoryHandler()
             onClose(onClose)
           })
@@ -513,7 +513,7 @@ const DrawerComponent = (props) => {
         'formData',
         {
           id: editData.id,
-          lotName: editData?.lotCategoryName,
+          itemCategoryName: editData?.itemCategoryName,
           modifiedBy: currentUser.userName,
         },
         { shouldValidate: true },
@@ -530,20 +530,21 @@ const DrawerComponent = (props) => {
         <form onSubmit={handleSubmit(submitHandler)}>
           <DrawerContent>
             <DrawerHeader borderBottomWidth="1px">
-              Lot Category Form
+              Item Category Form
             </DrawerHeader>
             <DrawerCloseButton />
             <DrawerBody>
               <Stack spacing="7px">
                 <Box>
-                  <FormLabel>Lot Name:</FormLabel>
+                  <FormLabel>Category Code:</FormLabel>
                   <Input
-                    {...register('formData.lotName')}
-                    placeholder="Please enter Lot Category name"
+                    {...register('formData.itemCategoryName')}
+                    placeholder="Please enter Category name"
                     autoComplete="off"
+                    autoFocus
                   />
                   <Text color="red" fontSize="xs">
-                    {errors.formData?.lotName?.message}
+                    {errors.formData?.itemCategoryName?.message}
                   </Text>
                 </Box>
               </Stack>

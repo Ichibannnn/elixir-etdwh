@@ -41,8 +41,8 @@ import {
   import { useForm } from 'react-hook-form'
   import { AiTwotoneEdit } from 'react-icons/ai'
   import { GiChoice } from 'react-icons/gi'
-  import { FaSearch } from 'react-icons/fa'
   import { MdLibraryAdd } from 'react-icons/md'
+  import { FaSearch } from 'react-icons/fa'
   import PageScroll from '../../utils/PageScroll'
   import request from '../../services/ApiClient'
   import { ToastComponent } from '../../components/Toast'
@@ -59,8 +59,8 @@ import {
     PaginationPageGroup,
   } from '@ajna/pagination'
   
-  const CustomerType = () => {
-    const [customerType, setCustomerType] = useState([])
+  const Department = () => {
+    const [account, setAccount] = useState([])
     const [editData, setEditData] = useState([])
     const [status, setStatus] = useState(true)
     const [search, setSearch] = useState('')
@@ -71,10 +71,9 @@ import {
     const [pageTotal, setPageTotal] = useState(undefined)
     const [disableEdit, setDisableEdit] = useState(false)
   
-    // FETCH API CUSTOMER TYPE:
-    const fetchCustomerTypeApi = async (pageNumber, pageSize, status, search) => {
+    const fetchAccountApi = async (pageNumber, pageSize, status, search) => {
       const response = await request.get(
-        `Customer/GetAllCustomerTypeWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
+        `Account/GetAllAccountWithPaginationOrig/${status}?PageNumber=${pageNumber}&PageSize=${pageSize}&search=${search}`,
       )
   
       return response.data
@@ -99,6 +98,23 @@ import {
       initialState: { currentPage: 1, pageSize: 5 },
     })
   
+    //SHOW USER DATA----
+    const getAccountHandler = () => {
+      fetchAccountApi(currentPage, pageSize, status, search).then((res) => {
+        setIsLoading(false)
+        setAccount(res)
+        setPageTotal(res.totalCount)
+      })
+    }
+  
+    useEffect(() => {
+      getAccountHandler()
+  
+      return () => {
+        setAccount([])
+      }
+    }, [currentPage, pageSize, status, search])
+  
     const handlePageChange = (nextPage) => {
       setCurrentPage(nextPage)
     }
@@ -108,60 +124,41 @@ import {
       setPageSize(pageSize)
     }
   
-    //STATUS
     const statusHandler = (data) => {
       setStatus(data)
     }
   
-    const changeStatusHandler = (id, isActive) => {
+    const changeStatusHandler = (id, status) => {
       let routeLabel
-      console.log(id)
-      console.log(isActive)
-      if (isActive) {
-        routeLabel = 'InActiveCustomerType'
+      if (status) {
+        routeLabel = 'InActiveAccount'
       } else {
-        routeLabel = 'ActivateCustomerType'
+        routeLabel = 'ActivateAccount'
       }
   
       request
-        .put(`Customer/${routeLabel}`, { id: id })
+        .put(`/Account/${routeLabel}`, { id: id })
         .then((res) => {
           ToastComponent('Success', 'Status updated', 'success', toast)
-          getCustomerTypeHandler()
+          getAccountHandler()
         })
         .catch((err) => {
           console.log(err)
         })
+      console.log(routeLabel)
     }
   
-    //SHOW ITEM CATEGORY DATA----
-    const getCustomerTypeHandler = () => {
-      fetchCustomerTypeApi(currentPage, pageSize, status, search).then((res) => {
-        setIsLoading(false)
-        setCustomerType(res)
-        setPageTotal(res.totalCount)
-      })
-    }
-  
-    useEffect(() => {
-      getCustomerTypeHandler()
-  
-      return () => {
-        setCustomerType([])
-      }
-    }, [currentPage, pageSize, status, search])
-  
-    // SEARCH
     const searchHandler = (inputValue) => {
       setSearch(inputValue)
       console.log(inputValue)
     }
   
-    //ADD CUSTOMER TYPE HANDLER---
-    const addCustomerTypeHandler = () => {
+    //ADD USER HANDLER---
+    const addAccountHandler = () => {
       setEditData({
         id: '',
-        customerName: '',
+        accountCode: '',
+        accountName: '',
         addedBy: currentUser.userName,
         modifiedBy: '',
       })
@@ -169,16 +166,16 @@ import {
       setDisableEdit(false)
     }
   
-    //EDIT ITEM CATEGORY--
-    const editCustomerTypeHandler = (type) => {
+    //EDIT USER--
+    const editAccountHandler = (account) => {
       setDisableEdit(true)
-      setEditData(type)
+      setEditData(account)
       onOpen()
-      // console.log(mod.mainMenu)
     }
-  
-    //FOR DRAWER (Drawer / Drawer Tagging)
+    //FOR DRAWER
     const { isOpen, onOpen, onClose } = useDisclosure()
+  
+    // console.log(status);
   
     return (
       <Flex
@@ -202,8 +199,9 @@ import {
                   <Input
                     borderRadius="none"
                     size="sm"
+                    fontSize="10px"
                     type="text"
-                    placeholder="Search: Category Name"
+                    placeholder="Search: Account Name"
                     borderColor="gray.400"
                     _hover={{ borderColor: 'gray.400' }}
                     onChange={(e) => searchHandler(e.target.value)}
@@ -249,7 +247,10 @@ import {
                           ID
                         </Th>
                         <Th color="#D6D6D6" fontSize="10px">
-                          Customer Type
+                          Account Code
+                        </Th>
+                        <Th color="#D6D6D6" fontSize="10px">
+                          Account Name
                         </Th>
                         <Th color="#D6D6D6" fontSize="10px">
                           Added By
@@ -263,72 +264,70 @@ import {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {customerType?.type?.map((custType, i) => (
+                      {account.account?.map((acc, i) => (
                         <Tr key={i}>
-                          <Td fontSize="11px">{custType.id}</Td>
-                          <Td fontSize="11px">{custType.customerName}</Td>
-                          <Td fontSize="11px">{custType.addedBy}</Td>
-                          <Td fontSize="11px">{custType.dateAdded}</Td>
+                          <Td fontSize="11px">{acc.id}</Td>
+                          <Td fontSize="11px">{acc.accountCode}</Td>
+                          <Td fontSize="11px">{acc.accountName}</Td>
+                          <Td fontSize="11px">{acc.addedBy}</Td>
+                          <Td fontSize="11px">{acc.dateAdded}</Td>
   
                           <Td pl={0}>
-                            <Flex>
-                              <HStack>
-                                <Button
-                                  bg="none"
-                                  onClick={() => editCustomerTypeHandler(custType)}
-                                >
-                                  <AiTwotoneEdit />
-                                </Button>
-  
-                                <Popover>
-                                  {({ onClose }) => (
-                                    <>
-                                      <PopoverTrigger>
-                                        <Button p={0} bg="none">
-                                          <GiChoice />
-                                        </Button>
-                                      </PopoverTrigger>
-                                      <Portal>
-                                        <PopoverContent bg="primary" color="#fff">
-                                          <PopoverArrow bg="primary" />
-                                          <PopoverCloseButton />
-                                          <PopoverHeader>
-                                            Confirmation!
-                                          </PopoverHeader>
-                                          <PopoverBody>
-                                            <VStack onClick={onClose}>
-                                              {custType.isActive === true ? (
-                                                <Text>
-                                                  Are you sure you want to set
-                                                  this Item Category inactive?
-                                                </Text>
-                                              ) : (
-                                                <Text>
-                                                  Are you sure you want to set
-                                                  this Item Category active?
-                                                </Text>
-                                              )}
-                                              <Button
-                                                colorScheme="green"
-                                                size="sm"
-                                                onClick={() =>
-                                                  changeStatusHandler(
-                                                    custType.id,
-                                                    custType.isActive,
-                                                  )
-                                                }
-                                              >
-                                                Yes
-                                              </Button>
-                                            </VStack>
-                                          </PopoverBody>
-                                        </PopoverContent>
-                                      </Portal>
-                                    </>
-                                  )}
-                                </Popover>
-                              </HStack>
-                            </Flex>
+                            <HStack>
+                              <Button
+                                bg="none"
+                                onClick={() => editAccountHandler(acc)}
+                              >
+                                <AiTwotoneEdit />
+                              </Button>
+                              <Popover>
+                                {({ onClose }) => (
+                                  <>
+                                    <PopoverTrigger>
+                                      <Button p={0} bg="none">
+                                        <GiChoice />
+                                      </Button>
+                                    </PopoverTrigger>
+                                    <Portal>
+                                      <PopoverContent bg="primary" color="#fff">
+                                        <PopoverArrow bg="primary" />
+                                        <PopoverCloseButton />
+                                        <PopoverHeader>
+                                          Confirmation!
+                                        </PopoverHeader>
+                                        <PopoverBody>
+                                          <VStack onClick={onClose}>
+                                            {acc.isActive === true ? (
+                                              <Text>
+                                                Are you sure you want to set this
+                                                account inactive?
+                                              </Text>
+                                            ) : (
+                                              <Text>
+                                                Are you sure you want to set this
+                                                account active?
+                                              </Text>
+                                            )}
+                                            <Button
+                                              colorScheme="green"
+                                              size="sm"
+                                              onClick={() =>
+                                                changeStatusHandler(
+                                                  acc.id,
+                                                  acc.isActive,
+                                                )
+                                              }
+                                            >
+                                              Yes
+                                            </Button>
+                                          </VStack>
+                                        </PopoverBody>
+                                      </PopoverContent>
+                                    </Portal>
+                                  </>
+                                )}
+                              </Popover>
+                            </HStack>
                           </Td>
                         </Tr>
                       ))}
@@ -337,7 +336,7 @@ import {
                 )}
               </PageScroll>
   
-              <Flex justifyContent="space-between" mt={3}>
+              <Flex justifyContent="space-between">
                 <Button
                   size="sm"
                   colorScheme="blue"
@@ -347,9 +346,9 @@ import {
                   w="auto"
                   leftIcon={<MdLibraryAdd fontSize="19px" />}
                   borderRadius="none"
-                  onClick={addCustomerTypeHandler}
+                  onClick={addAccountHandler}
                 >
-                  New Customer Type
+                  New Account
                 </Button>
   
                 {/* PROPS */}
@@ -357,8 +356,8 @@ import {
                   <DrawerComponent
                     isOpen={isOpen}
                     onClose={onClose}
-                    fetchCustomerTypeApi={fetchCustomerTypeApi}
-                    getCustomerTypeHandler={getCustomerTypeHandler}
+                    fetchAccountApi={fetchAccountApi}
+                    getAccountHandler={getAccountHandler}
                     editData={editData}
                     disableEdit={disableEdit}
                   />
@@ -408,9 +407,8 @@ import {
                         <Select
                           onChange={handlePageSizeChange}
                           bg="#FFFFFF"
-                          // size="sm"
+                          size="sm"
                           mb={2}
-                          variant="outline"
                         >
                           <option value={Number(5)}>5</option>
                           <option value={Number(10)}>10</option>
@@ -429,25 +427,20 @@ import {
     )
   }
   
-  export default CustomerType
+  export default Department
   
   const schema = yup.object().shape({
     formData: yup.object().shape({
       id: yup.string(),
-      customerName: yup.string().required('Item Category name is required'),
+      accountCode: yup.string().required('Account Code is required'),
+      accountName: yup.string().required('Account Name is required'),
     }),
   })
   
   const currentUser = decodeUser()
   
   const DrawerComponent = (props) => {
-    const {
-      isOpen,
-      onClose,
-      getCustomerTypeHandler,
-      editData,
-      disableEdit,
-    } = props
+    const { isOpen, onClose, getAccountHandler, editData, disableEdit } = props
     const toast = useToast()
   
     const {
@@ -462,7 +455,8 @@ import {
       defaultValues: {
         formData: {
           id: '',
-          customerName: '',
+          accountCode: '',
+          accountName: '',
           addedBy: currentUser?.userName,
           modifiedBy: '',
         },
@@ -474,15 +468,15 @@ import {
         if (data.formData.id === '') {
           delete data.formData['id']
           const res = await request
-            .post('Customer/AddNewCustomerType', data.formData)
+            .post('Account/AddNewAccounts', data.formData)
             .then((res) => {
               ToastComponent(
                 'Success',
-                'New Customer Type created!',
+                'New account created!',
                 'success',
                 toast,
               )
-              getCustomerTypeHandler()
+              getAccountHandler()
               onClose()
             })
             .catch((err) => {
@@ -491,10 +485,10 @@ import {
             })
         } else {
           const res = await request
-            .put(`Customer/UpdateCustomerType`, data.formData)
+            .put(`Account/UpdateAccount`, data.formData)
             .then((res) => {
-              ToastComponent('Success', 'Category Type Updated', 'success', toast)
-              getCustomerTypeHandler()
+              ToastComponent('Success', 'Account Updated', 'success', toast)
+              getAccountHandler()
               onClose(onClose)
             })
             .catch((error) => {
@@ -509,13 +503,16 @@ import {
       } catch (err) {}
     }
   
+    console.log(editData)
+  
     useEffect(() => {
       if (editData.id) {
         setValue(
           'formData',
           {
             id: editData.id,
-            customerName: editData?.customerName,
+            accountCode: editData?.accountCode,
+            accountName: editData?.accountName,
             modifiedBy: currentUser.userName,
           },
           { shouldValidate: true },
@@ -523,7 +520,7 @@ import {
       }
     }, [editData])
   
-    console.log(watch('formData'))
+    console.log(watch('formData.id'))
   
     return (
       <>
@@ -531,22 +528,36 @@ import {
           <DrawerOverlay />
           <form onSubmit={handleSubmit(submitHandler)}>
             <DrawerContent>
-              <DrawerHeader borderBottomWidth="1px">
-                Customer Type Form
-              </DrawerHeader>
+              <DrawerHeader borderBottomWidth="1px">Account Form</DrawerHeader>
               <DrawerCloseButton />
               <DrawerBody>
                 <Stack spacing="7px">
                   <Box>
-                    <FormLabel>Category Type:</FormLabel>
+                    <FormLabel>Account Code:</FormLabel>
                     <Input
-                      {...register('formData.customerName')}
-                      placeholder="Please enter Category name"
+                      {...register('formData.accountCode')}
+                      placeholder="Please enter Account Code"
                       autoComplete="off"
                       autoFocus
+                      disabled={disableEdit}
+                      readOnly={disableEdit}
+                      _disabled={{ color: 'black' }}
+                      bgColor={disableEdit && 'gray.300'}
                     />
                     <Text color="red" fontSize="xs">
-                      {errors.formData?.customerName?.message}
+                      {errors.formData?.accountCode?.message}
+                    </Text>
+                  </Box>
+  
+                  <Box>
+                    <FormLabel>Account Name:</FormLabel>
+                    <Input
+                      {...register('formData.accountName')}
+                      placeholder="Please enter Account Name"
+                      autoComplete="off"
+                    />
+                    <Text color="red" fontSize="xs">
+                      {errors.formData?.accountName?.message}
                     </Text>
                   </Box>
                 </Stack>
@@ -555,7 +566,7 @@ import {
                 <Button variant="outline" mr={3} onClick={onClose}>
                   Cancel
                 </Button>
-                <Button type="submit" disabled={!isValid} colorScheme="blue">
+                <Button type="submit" colorScheme="blue" disabled={!isValid}>
                   Submit
                 </Button>
               </DrawerFooter>

@@ -31,9 +31,14 @@ import CompanyManagement from './pages/account_title/CompanyManagement'
 
 import UserAccount from './pages/user_management/UserAccount'
 import UserRole from './pages/user_management/UserRole'
-import Department from './pages/user_management/Department'
+// import Department from './pages/user_management/Department'
 import ModuleManagement from './pages/user_management/ModuleManagement'
 import MenuManagement from './pages/user_management/MenuManagement'
+import AccTDepartment from './pages/setup/AccTDepartment'
+import AccTLocation from './pages/setup/AccTLocation'
+import AccTAccount from './pages/setup/AccTAccount'
+import ImportPage from './ImportPage'
+import ImportPO from './pages/import/ImportPO'
 
 
 const App = () => {
@@ -57,18 +62,23 @@ const App = () => {
               <Route path="/setup/lot-management" element={<LotManagement />} />
               <Route path="/setup/lot-category" element={<LotCategory />} />
               <Route path="/setup/reason-management" element={<ReasonManagement />} />
+              <Route path="/setup/account_title-company" element={<CompanyManagement />} />
+              <Route path="/setup/account_title-department" element={<AccTDepartment />} />
+              <Route path="/setup/account_title-location" element={<AccTLocation />} />
+              <Route path="/setup/account_title-account" element={<AccTAccount />} />
             </Route>
 
             <Route path="/user" element={<UserManagementPage />}>
               <Route path="/user/user-account" element={<UserAccount />} />
               <Route path="/user/user-role" element={<UserRole />} />
-              <Route path="/user/department" element={<Department />} />
+              {/* <Route path="/user/department" element={<Department />} /> */}
               <Route path="/user/module-management" element={<ModuleManagement />}/>
               <Route path="/user/menu-management" element={<MenuManagement />}/>
+              
             </Route>
 
-            <Route path="/account-title" element={<AccountTitlePage />}>
-              <Route path="/account-title/company-management" element={<CompanyManagement />} />
+            <Route path="/import" element={<ImportPage />}>
+             <Route path="/import/import-po" element={<ImportPO />}/>
             </Route>
 
             <Route path="*" element={<ErrorPage />} />

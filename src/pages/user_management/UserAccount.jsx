@@ -354,11 +354,12 @@ const UserAccount = () => {
             <Flex justifyContent="space-between">
               <Button
                 size="sm"
-
+                fontSize="13px"
+                fontWeight="normal"
                 colorScheme="blue"
                 _hover={{ bg: 'blue.400', color: '#fff' }}
                 w="auto"
-                leftIcon={<MdLibraryAdd fontSize="22px" />}
+                leftIcon={<MdLibraryAdd fontSize="19px" />}
                 borderRadius="none"
                 onClick={addUserHandler}
               >
